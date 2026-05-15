@@ -43,9 +43,11 @@ const Calendar = {
   renderWeekly() {
     const grid = document.getElementById("weekly-grid");
     const label = document.getElementById("week-label");
+    const chartContainer = document.getElementById("weekly-chart");
     const totalContainer = document.getElementById("weekly-total");
     const events = DB.getEvents();
     grid.innerHTML = "";
+    const dailyData = []; 
 
     let weeklyTotal = 0;
 
@@ -65,6 +67,11 @@ const Calendar = {
       currentDay.setDate(currentDay.getDate() + i);
       const dateStr = currentDay.toLocaleDateString("es-ES");
       const count = events.filter((e) => e.date === dateStr).length;
+      
+      dailyData.push({
+        count,
+        dayName: this.WEEK_DAYS[i]
+      });
       weeklyTotal += count;
 
       const today = new Date();
@@ -80,6 +87,43 @@ const Calendar = {
         <div class="count">${count}</div>
       `;
       grid.appendChild(cell);
+    }
+
+    // Renderizar la gráfica de línea con puntos
+    if (chartContainer) {
+      const maxCount = Math.max(...dailyData.map(d => d.count), 1);
+      const width = 600;
+      const height = 200;
+      const padding = 40;
+
+      const points = dailyData.map((data, i) => {
+        const x = (width / (dailyData.length - 1)) * i;
+        const y = height - ((data.count / maxCount) * (height - padding * 2) + padding);
+        return { x, y, count: data.count };
+      });
+
+      const polylinePoints = points.map(p => `${p.x},${p.y}`).join(' ');
+      const areaPoints = `0,${height} ${polylinePoints} ${width},${height}`;
+
+      chartContainer.innerHTML = `
+        <svg viewBox="0 -40 ${width} ${height + 60}" style="width: 100%; height: 100%; overflow: visible;">
+          <defs>
+            <linearGradient id="area-gradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="var(--primary)" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <polygon points="${areaPoints}" fill="url(#area-gradient)" />
+          <polyline points="${polylinePoints}" class="chart-line" />
+          ${points.map(p => `
+            <circle cx="${p.x}" cy="${p.y}" r="6" class="chart-point" />
+            <text x="${p.x}" y="${p.y - 18}" text-anchor="middle" style="fill: var(--primary); font-size: 18px; font-weight: bold; font-family: sans-serif;">${p.count}</text>
+          `).join('')}
+        </svg>
+        <div class="chart-labels">
+          ${dailyData.map(d => `<span class="chart-bar-label">${d.dayName}</span>`).join('')}
+        </div>
+      `;
     }
 
     if (totalContainer) {
