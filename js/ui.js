@@ -99,6 +99,40 @@ const UI = {
       Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() + 1);
       Calendar.renderHistory();
     };
+
+    // Gestos táctiles para navegación horizontal entre pantallas
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const dx = touchEndX - touchStartX;
+      const dy = touchEndY - touchStartY;
+
+      // Solo navegar si el desplazamiento horizontal es predominante y tiene suficiente recorrido (70px)
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 70) {
+        const viewsOrder = ["main", "history", "weekly", "monthly", "settings"];
+        const activeView = document.querySelector(".view:not(.hidden)");
+        if (!activeView) return;
+        
+        const currentViewName = activeView.id.replace("view-", "");
+        const currentIndex = viewsOrder.indexOf(currentViewName);
+
+        if (dx < 0 && currentIndex < viewsOrder.length - 1) {
+          // Deslizar hacia la izquierda (dedo hacia la izquierda) -> Siguiente menú
+          this.showView(viewsOrder[currentIndex + 1]);
+        } else if (dx > 0 && currentIndex > 0) {
+          // Deslizar hacia la derecha (dedo hacia la derecha) -> Menú anterior
+          this.showView(viewsOrder[currentIndex - 1]);
+        }
+      }
+    }, { passive: true });
   },
 
   updateLanguageStrings() {
@@ -135,11 +169,41 @@ const UI = {
   showView(viewName) {
     const lang = DB.getLang();
     const t = this.translations[lang];
+    const viewsOrder = ["main", "history", "weekly", "monthly", "settings"];
+    
+    const oldView = document.querySelector(".view:not(.hidden)");
+    const newView = document.getElementById(`view-${viewName}`);
+    const content = document.getElementById("content");
 
-    document
-      .querySelectorAll(".view")
-      .forEach((v) => v.classList.add("hidden"));
-    document.getElementById(`view-${viewName}`).classList.remove("hidden");
+    if (!newView || oldView === newView) return;
+
+    if (oldView && content) {
+      const currentViewName = oldView.id.replace("view-", "");
+      const currentIndex = viewsOrder.indexOf(currentViewName);
+      const targetIndex = viewsOrder.indexOf(viewName);
+
+      content.classList.remove("slide-next", "slide-prev");
+      void content.offsetWidth; // Trigger reflow
+      
+      const isNext = targetIndex >= currentIndex;
+      content.classList.add(isNext ? "slide-next" : "slide-prev");
+
+      // Marcamos la vieja para que se anime hacia afuera y mostramos la nueva
+      oldView.classList.add("view-exit");
+      newView.classList.remove("hidden");
+
+      // Esperamos a que termine la animación para ocultar la vieja
+      setTimeout(() => {
+        oldView.classList.add("hidden");
+        oldView.classList.remove("view-exit");
+        content.classList.remove("slide-next", "slide-prev");
+      }, 400);
+    } else {
+      // Carga inicial sin animación
+      document.querySelectorAll(".view").forEach((v) => v.classList.add("hidden"));
+      newView.classList.remove("hidden");
+    }
+
     document.getElementById("app-title").textContent = t[viewName] || t.appTitle;
 
     // Actualizar datos de calendarios al cambiar de vista

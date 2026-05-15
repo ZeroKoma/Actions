@@ -47,30 +47,57 @@ body {
 
 /* Vistas */
 .view {
+  grid-area: 1 / 1 / 2 / 1; /* Superpone todas las vistas en la misma celda */
   padding: 1rem;
   will-change: transform, opacity;
+  background: var(--bg); /* Evita que las vistas se vean transparentes al cruzarse */
+  min-height: 100%;
 }
 
 .view:not(.hidden) {
-  animation: slideIn 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+  /* La animación se define dinámicamente por la clase del padre #content */
 }
 
 .hidden {
   display: none !important;
 }
 
-@keyframes slideIn {
-  0% {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Animaciones para avanzar (Next) */
+#content.slide-next .view:not(.hidden):not(.view-exit) {
+  animation: slideInRight 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+#content.slide-next .view.view-exit {
+  animation: slideOutLeft 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+/* Animaciones para retroceder (Prev) */
+#content.slide-prev .view:not(.hidden):not(.view-exit) {
+  animation: slideInLeft 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+#content.slide-prev .view.view-exit {
+  animation: slideOutRight 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideOutLeft {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(-30px); }
+}
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-30px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideOutRight {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(30px); }
 }
 
 main#content {
+  display: grid;
+  grid-template-columns: 1fr;
   overflow-x: hidden;
   width: 100%;
 }
