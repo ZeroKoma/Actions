@@ -24,6 +24,9 @@ const DB = {
   getLang: () => localStorage.getItem("app_lang") || "es",
   setLang: (lang) => localStorage.setItem("app_lang", lang),
 
+  getDarkMode: () => localStorage.getItem("app_dark_mode") === "true",
+  setDarkMode: (isDark) => localStorage.setItem("app_dark_mode", isDark),
+
   clearAll: () => {
     localStorage.clear();
     location.reload();

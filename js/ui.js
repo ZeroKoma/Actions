@@ -9,6 +9,7 @@ const UI = {
       settings: "Ajustes",
       undo: "Deshacer",
       settingsTitle: "Configuración",
+      labelDark: "Modo Oscuro",
       labelLang: "Idioma",
       resetText: "Eliminar todo y empezar de nuevo",
       confirmTitle: "Confirmar acción",
@@ -29,6 +30,7 @@ const UI = {
       settings: "Settings",
       undo: "Undo",
       settingsTitle: "Configuration",
+      labelDark: "Dark Mode",
       labelLang: "Language",
       resetText: "Delete all and start over",
       confirmTitle: "Confirm action",
@@ -43,6 +45,7 @@ const UI = {
   },
 
   renderMain() {
+    this.applyDarkMode();
     this.updateLanguageStrings();
     const config = DB.getConfig();
     const events = DB.getEvents();
@@ -69,6 +72,7 @@ const UI = {
     const confirmAccept = document.getElementById("confirm-accept");
     const confirmCancel = document.getElementById("confirm-cancel");
     const langSwitch = document.getElementById("lang-switch");
+    const darkSwitch = document.getElementById("dark-switch");
 
     if (langSwitch) {
       langSwitch.checked = DB.getLang() === "en";
@@ -76,6 +80,14 @@ const UI = {
         DB.setLang(e.target.checked ? "en" : "es");
         this.updateLanguageStrings();
         Calendar.init(); // Reiniciar calendario para actualizar días
+      };
+    }
+
+    if (darkSwitch) {
+      darkSwitch.checked = DB.getDarkMode();
+      darkSwitch.onchange = (e) => {
+        DB.setDarkMode(e.target.checked);
+        this.applyDarkMode();
       };
     }
 
@@ -156,6 +168,7 @@ const UI = {
     }
     
     document.getElementById("settings-title").textContent = t.settingsTitle;
+    document.getElementById("label-dark").textContent = t.labelDark;
     document.getElementById("label-lang").textContent = t.labelLang;
     document.getElementById("reset-text").textContent = t.resetText;
 
@@ -164,6 +177,11 @@ const UI = {
     document.querySelector("#confirm-dialog p").textContent = t.confirmBody;
     document.getElementById("confirm-cancel").textContent = t.cancel;
     document.getElementById("confirm-accept").textContent = t.accept;
+  },
+
+  applyDarkMode() {
+    const isDark = DB.getDarkMode();
+    document.body.classList.toggle("dark-mode", isDark);
   },
 
   showView(viewName) {
