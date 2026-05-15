@@ -113,11 +113,11 @@ const Calendar = {
               <stop offset="100%" stop-color="var(--primary)" stop-opacity="0" />
             </linearGradient>
           </defs>
-          <polygon points="${areaPoints}" fill="url(#area-gradient)" />
+          <polygon points="${areaPoints}" fill="url(#area-gradient)" class="chart-area" />
           <polyline points="${polylinePoints}" class="chart-line" />
-          ${points.map(p => `
-            <circle cx="${p.x}" cy="${p.y}" r="6" class="chart-point" />
-            <text x="${p.x}" y="${p.y - 18}" text-anchor="middle" style="fill: var(--primary); font-size: 18px; font-weight: bold; font-family: sans-serif;">${p.count}</text>
+          ${points.map((p, i) => `
+            <circle cx="${p.x}" cy="${p.y}" r="6" class="chart-point" style="animation-delay: ${i * 0.15}s" />
+            <text x="${p.x}" y="${p.y - 18}" text-anchor="middle" class="chart-text" style="animation-delay: ${i * 0.15}s; fill: var(--primary); font-size: 18px; font-weight: bold; font-family: sans-serif;">${p.count}</text>
           `).join('')}
         </svg>
         <div class="chart-labels">
