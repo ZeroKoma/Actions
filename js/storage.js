@@ -28,7 +28,8 @@ const DB = {
   setDarkMode: (isDark) => localStorage.setItem("app_dark_mode", isDark),
 
   clearAll: () => {
-    localStorage.clear();
+    localStorage.removeItem("app_config");
+    localStorage.removeItem("app_events");
     location.reload();
   },
 };
