@@ -72,24 +72,24 @@ body {
   justify-content: center;
 }
 
-/* Vistas */
+/* Views */
 .view {
-  grid-area: 1 / 1 / 2 / 1; /* Superpone todas las vistas en la misma celda */
+  grid-area: 1 / 1 / 2 / 1; /* Overlays all views in the same cell */
   padding: 1rem;
   will-change: transform, opacity;
-  background: var(--bg); /* Evita que las vistas se vean transparentes al cruzarse */
+  background: var(--bg); /* Prevents views from being transparent when crossing */
   min-height: 100%;
 }
 
 .view:not(.hidden) {
-  /* La animación se define dinámicamente por la clase del padre #content */
+  /* Animation is dynamically defined by the parent #content class */
 }
 
 .hidden {
   display: none !important;
 }
 
-/* Animaciones para avanzar (Next) */
+/* Animations for moving forward (Next) */
 #content.slide-next .view:not(.hidden):not(.view-exit) {
   animation: slideInRight 0.4s cubic-bezier(0.33, 1, 0.68, 1);
 }
@@ -97,7 +97,7 @@ body {
   animation: slideOutLeft 0.4s cubic-bezier(0.33, 1, 0.68, 1) forwards;
 }
 
-/* Animaciones para retroceder (Prev) */
+/* Animations for moving backward (Prev) */
 #content.slide-prev .view:not(.hidden):not(.view-exit) {
   animation: slideInLeft 0.4s cubic-bezier(0.33, 1, 0.68, 1);
 }
@@ -129,7 +129,7 @@ main#content {
   width: 100%;
 }
 
-/* Tarjeta Principal */
+/* Main Card */
 .counter-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
@@ -238,7 +238,7 @@ main#content {
   animation: pop 0.2s ease-out;
 }
 
-/* Menú Lateral */
+/* Side Menu */
 .side-menu {
   position: fixed;
   top: 0;
@@ -361,7 +361,7 @@ main#content {
   text-align: center;
   font-size: 1rem;
   border: none;
-  border-radius: 0; /* Cambiado a rectangular */
+  border-radius: 0; /* Changed to rectangular */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -518,7 +518,7 @@ main#content {
   margin-left: 8px;
 }
 
-/* Modales */
+/* Modals */
 .modal {
   position: fixed;
   inset: 0;
@@ -529,7 +529,7 @@ main#content {
   z-index: 300;
 }
 
-/* Estilos para el diálogo de confirmación */
+/* Styles for confirmation dialog */
 .modal-dialog {
   border: none;
   border-radius: 16px;

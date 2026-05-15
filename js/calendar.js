@@ -38,12 +38,12 @@ const Calendar = {
     
     if (hasToday) return now;
 
-    // Si no hay hoy, buscamos el día anterior (ayer)
+    // If there's no today, we search for the previous day (yesterday)
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     return yesterday;
-    // Nota: Podríamos buscar el último día con eventos, pero el requerimiento 
-    // pide día actual y si no existe, día anterior.
+    // Note: We could search for the last day with events, but the requirement 
+    // asks for the current day and if it doesn't exist, the previous day.
   },
 
   getStartOfWeek(d) {
@@ -103,7 +103,7 @@ const Calendar = {
     for (let i = 0; i < 7; i++) {
       const currentDay = new Date(start);
       currentDay.setDate(currentDay.getDate() + i);
-      const dateStr = currentDay.toLocaleDateString("es-ES"); // La clave de fecha se mantiene en es-ES para compatibilidad con DB
+      const dateStr = currentDay.toLocaleDateString("es-ES"); // Date key is kept in es-ES for compatibility with DB
       const count = events.filter((e) => e.date === dateStr).length;
 
       dailyData.push({
@@ -127,7 +127,7 @@ const Calendar = {
       grid.appendChild(cell);
     }
 
-    // Renderizar la gráfica de línea con puntos
+    // Render line chart with points
     if (chartContainer) {
       const maxCount = Math.max(...dailyData.map((d) => d.count), 1);
       const width = 600;
@@ -246,7 +246,7 @@ const Calendar = {
     const dateStr = this.currentHistoryDate.toLocaleDateString("es-ES");
     const dayEvents = events.filter(e => e.date === dateStr);
     
-    // Formatear etiqueta de fecha
+    // Format date label
     const isToday = dateStr === new Date().toLocaleDateString("es-ES");
     label.textContent = isToday ? t.today : this.currentHistoryDate.toLocaleDateString(DB.getLang() === "en" ? "en-US" : "es-ES", { day: 'numeric', month: 'short', year: 'numeric' });
 

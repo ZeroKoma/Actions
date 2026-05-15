@@ -79,7 +79,7 @@ const UI = {
       langSwitch.onchange = (e) => {
         DB.setLang(e.target.checked ? "en" : "es");
         this.updateLanguageStrings();
-        Calendar.init(); // Reiniciar calendario para actualizar días
+        Calendar.init(); // Reset calendar to update days
       };
     }
 
@@ -112,7 +112,7 @@ const UI = {
       Calendar.renderHistory();
     };
 
-    // Gestos táctiles para navegación horizontal entre pantallas
+    // Touch gestures for horizontal navigation between screens
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -127,7 +127,7 @@ const UI = {
       const dx = touchEndX - touchStartX;
       const dy = touchEndY - touchStartY;
 
-      // Solo navegar si el desplazamiento horizontal es predominante y tiene suficiente recorrido (70px)
+      // Only navigate if horizontal displacement is predominant and has enough travel (70px)
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 70) {
         const viewsOrder = ["main", "history", "weekly", "monthly", "settings"];
         const activeView = document.querySelector(".view:not(.hidden)");
@@ -137,10 +137,10 @@ const UI = {
         const currentIndex = viewsOrder.indexOf(currentViewName);
 
         if (dx < 0 && currentIndex < viewsOrder.length - 1) {
-          // Deslizar hacia la izquierda (dedo hacia la izquierda) -> Siguiente menú
+          // Swipe left (finger to the left) -> Next menu
           this.showView(viewsOrder[currentIndex + 1]);
         } else if (dx > 0 && currentIndex > 0) {
-          // Deslizar hacia la derecha (dedo hacia la derecha) -> Menú anterior
+          // Swipe right (finger to the right) -> Previous menu
           this.showView(viewsOrder[currentIndex - 1]);
         }
       }
@@ -151,7 +151,7 @@ const UI = {
     const lang = DB.getLang();
     const t = this.translations[lang];
 
-    // Títulos de navegación y header
+    // Navigation and header titles
     document.getElementById("app-title").textContent = t.appTitle;
     document.querySelectorAll('[data-view="main"] span, [data-view="main"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.main; });
     document.querySelectorAll('[data-view="weekly"] span, [data-view="weekly"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.weekly; });
@@ -159,7 +159,7 @@ const UI = {
     document.querySelectorAll('[data-view="history"] span, [data-view="history"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.history; });
     document.querySelectorAll('[data-view="settings"] span, [data-view="settings"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.settings; });
 
-    // Vistas específicas
+    // Specific views
     if (document.getElementById("undo-button")) {
       const undoSvg = document.getElementById("undo-button").querySelector('svg');
       document.getElementById("undo-button").textContent = "";
@@ -172,7 +172,7 @@ const UI = {
     document.getElementById("label-lang").textContent = t.labelLang;
     document.getElementById("reset-text").textContent = t.resetText;
 
-    // Diálogo
+    // Dialog
     document.querySelector("#confirm-dialog h3").textContent = t.confirmTitle;
     document.querySelector("#confirm-dialog p").textContent = t.confirmBody;
     document.getElementById("confirm-cancel").textContent = t.cancel;
@@ -206,30 +206,30 @@ const UI = {
       const isNext = targetIndex >= currentIndex;
       content.classList.add(isNext ? "slide-next" : "slide-prev");
 
-      // Marcamos la vieja para que se anime hacia afuera y mostramos la nueva
+      // Mark the old view to animate out and show the new one
       oldView.classList.add("view-exit");
       newView.classList.remove("hidden");
 
-      // Esperamos a que termine la animación para ocultar la vieja
+      // Wait for the animation to finish to hide the old view
       setTimeout(() => {
         oldView.classList.add("hidden");
         oldView.classList.remove("view-exit");
         content.classList.remove("slide-next", "slide-prev");
       }, 400);
     } else {
-      // Carga inicial sin animación
+      // Initial load without animation
       document.querySelectorAll(".view").forEach((v) => v.classList.add("hidden"));
       newView.classList.remove("hidden");
     }
 
     document.getElementById("app-title").textContent = t[viewName] || t.appTitle;
 
-    // Actualizar datos de calendarios al cambiar de vista
+    // Update calendar data when switching views
     if (viewName === "weekly") Calendar.renderWeekly();
     if (viewName === "monthly") Calendar.renderMonthly();
     if (viewName === "history") Calendar.renderHistory();
 
-    // Actualizar estado activo en menú lateral y móvil
+    // Update active state in side and mobile menu
     document.querySelectorAll(".menu-links button, .mobile-nav button").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.view === viewName);
     });
@@ -240,22 +240,22 @@ const UI = {
     const badge = card.querySelector(".counter-badge");
     const countEl = document.getElementById("main-count");
 
-    // Animación de escala en la tarjeta
+    // Scale animation on the card
     card.style.transform = "scale(0.95)";
     setTimeout(() => (card.style.transform = "scale(1)"), 100);
 
-    // Animación "pop" en el número
+    // "Pop" animation on the number
     countEl.classList.remove("pop-animation");
-    void countEl.offsetWidth; // Forzar reflujo para reiniciar animación
+    void countEl.offsetWidth; // Force reflow to restart animation
     countEl.classList.add("pop-animation");
 
-    // Crear indicador +1 flotante
+    // Create floating +1 indicator
     const indicator = document.createElement("span");
     indicator.textContent = "+1";
     indicator.className = "click-indicator";
     badge.appendChild(indicator);
 
-    // Limpiar el indicador después de la animación
+    // Clean up indicator after animation
     setTimeout(() => indicator.remove(), 800);
   },
 };
