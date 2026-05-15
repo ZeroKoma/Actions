@@ -1,13 +1,25 @@
 const Calendar = {
   currentWeekStart: null,
   currentMonthDate: null,
-  WEEK_DAYS: ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"],
+  
+  getWeekDays() {
+    const lang = DB.getLang();
+    return lang === "en" 
+      ? ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+      : ["LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB", "DOM"];
+  },
+
+  getLabels() {
+    const lang = DB.getLang();
+    return UI.translations[lang];
+  },
 
   init() {
     const now = new Date();
     this.currentWeekStart = this.getStartOfWeek(now);
     this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
 
+    this.weekDays = this.getWeekDays();
     this.setupListeners();
     this.renderHistory();
     this.renderWeekly();
@@ -15,9 +27,11 @@ const Calendar = {
   },
 
   getStartOfWeek(d) {
+    const lang = DB.getLang();
     const date = new Date(d);
     const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    const isEn = lang === "en";
+    const diff = isEn ? (date.getDate() - day) : (date.getDate() - day + (day === 0 ? -6 : 1));
     return new Date(date.setDate(diff));
   },
 
@@ -48,11 +62,12 @@ const Calendar = {
     const events = DB.getEvents();
     grid.innerHTML = "";
     const dailyData = []; 
+    const t = this.getLabels();
 
     let weeklyTotal = 0;
 
     // Add day headers
-    this.WEEK_DAYS.forEach((dayName) => {
+    this.weekDays.forEach((dayName) => {
       grid.innerHTML += `<div class="calendar-header-cell">${dayName}</div>`;
     });
 
@@ -60,17 +75,18 @@ const Calendar = {
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
 
-    label.textContent = `${start.toLocaleDateString("es-ES", { day: "numeric", month: "short" })} - ${end.toLocaleDateString("es-ES", { day: "numeric", month: "short" })}`;
+    const locale = DB.getLang() === "en" ? "en-US" : "es-ES";
+    label.textContent = `${start.toLocaleDateString(locale, { day: "numeric", month: "short" })} - ${end.toLocaleDateString(locale, { day: "numeric", month: "short" })}`;
 
     for (let i = 0; i < 7; i++) {
       const currentDay = new Date(start);
       currentDay.setDate(currentDay.getDate() + i);
-      const dateStr = currentDay.toLocaleDateString("es-ES");
+      const dateStr = currentDay.toLocaleDateString("es-ES"); // La clave de fecha se mantiene en es-ES para compatibilidad con DB
       const count = events.filter((e) => e.date === dateStr).length;
       
       dailyData.push({
         count,
-        dayName: this.WEEK_DAYS[i]
+        dayName: this.weekDays[i]
       });
       weeklyTotal += count;
 
@@ -127,7 +143,7 @@ const Calendar = {
     }
 
     if (totalContainer) {
-      totalContainer.innerHTML = `Total de la semana: <span class="weekly-total-value">${weeklyTotal}</span>`;
+      totalContainer.innerHTML = `${t.weekly === 'Weekly' ? 'Weekly total' : 'Total de la semana'}: <span class="weekly-total-value">${weeklyTotal}</span>`;
     }
   },
 
@@ -139,15 +155,17 @@ const Calendar = {
 
     const year = this.currentMonthDate.getFullYear();
     const month = this.currentMonthDate.getMonth();
-    label.textContent = this.currentMonthDate.toLocaleDateString("es-ES", { month: "long", year: "numeric" }).toUpperCase();
+    const locale = DB.getLang() === "en" ? "en-US" : "es-ES";
+    label.textContent = this.currentMonthDate.toLocaleDateString(locale, { month: "long", year: "numeric" }).toUpperCase();
 
     // Add day headers
-    this.WEEK_DAYS.forEach((dayName) => {
+    this.weekDays.forEach((dayName) => {
       grid.innerHTML += `<div class="calendar-header-cell">${dayName}</div>`;
     });
 
     const firstDay = new Date(year, month, 1).getDay();
-    const offset = firstDay === 0 ? 6 : firstDay - 1;
+    const isEn = DB.getLang() === "en";
+    const offset = isEn ? firstDay : (firstDay === 0 ? 6 : firstDay - 1);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     // Fill leading empty days

@@ -275,7 +275,20 @@
 
         <!-- Ajustes -->
         <section id="view-settings" class="view hidden">
-          <h3>Configuración</h3>
+          <h3 id="settings-title">Configuración</h3>
+          
+          <div class="settings-group" style="margin-top: 1.5rem; background: white; padding: 1rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <label id="label-lang" style="font-weight: 600; font-size: 0.9rem;">Idioma</label>
+            <div class="switch-container">
+              <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8;">ES</span>
+              <label class="switch">
+                <input type="checkbox" id="lang-switch">
+                <span class="slider"></span>
+              </label>
+              <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8;">EN</span>
+            </div>
+          </div>
+
           <button id="reset-app" class="btn-danger">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -294,7 +307,7 @@
               <line x1="10" x2="10" y1="11" y2="17" />
               <line x1="14" x2="14" y1="11" y2="17" />
             </svg>
-            Eliminar todo y empezar de nuevo
+            <span id="reset-text">Eliminar todo y empezar de nuevo</span>
           </button>
         </section>
       </main>

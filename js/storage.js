@@ -21,6 +21,9 @@ const DB = {
     return false;
   },
 
+  getLang: () => localStorage.getItem("app_lang") || "es",
+  setLang: (lang) => localStorage.setItem("app_lang", lang),
+
   clearAll: () => {
     localStorage.clear();
     location.reload();

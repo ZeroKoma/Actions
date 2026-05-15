@@ -1,5 +1,47 @@
 const UI = {
+  translations: {
+    es: {
+      appTitle: "Acciones",
+      main: "Principal",
+      weekly: "Semanal",
+      monthly: "Mensual",
+      history: "Historial",
+      settings: "Ajustes",
+      undo: "Deshacer",
+      settingsTitle: "Configuración",
+      labelLang: "Idioma",
+      resetText: "Eliminar todo y empezar de nuevo",
+      confirmTitle: "Confirmar acción",
+      confirmBody: "¿Seguro? Se borrarán todos los datos.",
+      cancel: "Cancelar",
+      accept: "Aceptar",
+      historyTitle: "Historial Reciente",
+      weekLabel: "Semana",
+      monthLabel: "Mes"
+    },
+    en: {
+      appTitle: "Actions",
+      main: "Home",
+      weekly: "Weekly",
+      monthly: "Monthly",
+      history: "History",
+      settings: "Settings",
+      undo: "Undo",
+      settingsTitle: "Configuration",
+      labelLang: "Language",
+      resetText: "Delete all and start over",
+      confirmTitle: "Confirm action",
+      confirmBody: "Are you sure? All data will be deleted.",
+      cancel: "Cancel",
+      accept: "Accept",
+      historyTitle: "Recent History",
+      weekLabel: "Week",
+      monthLabel: "Month"
+    }
+  },
+
   renderMain() {
+    this.updateLanguageStrings();
     const config = DB.getConfig();
     const events = DB.getEvents();
 
@@ -24,6 +66,16 @@ const UI = {
     const confirmDialog = document.getElementById("confirm-dialog");
     const confirmAccept = document.getElementById("confirm-accept");
     const confirmCancel = document.getElementById("confirm-cancel");
+    const langSwitch = document.getElementById("lang-switch");
+
+    if (langSwitch) {
+      langSwitch.checked = DB.getLang() === "en";
+      langSwitch.onchange = (e) => {
+        DB.setLang(e.target.checked ? "en" : "es");
+        this.updateLanguageStrings();
+        Calendar.init(); // Reiniciar calendario para actualizar días
+      };
+    }
 
     document.getElementById("reset-app").onclick = () => {
       confirmDialog.showModal();
@@ -38,20 +90,47 @@ const UI = {
     }
   },
 
+  updateLanguageStrings() {
+    const lang = DB.getLang();
+    const t = this.translations[lang];
+
+    // Títulos de navegación y header
+    document.getElementById("app-title").textContent = t.appTitle;
+    document.querySelectorAll('[data-view="main"] span, [data-view="main"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.main; });
+    document.querySelectorAll('[data-view="weekly"] span, [data-view="weekly"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.weekly; });
+    document.querySelectorAll('[data-view="monthly"] span, [data-view="monthly"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.monthly; });
+    document.querySelectorAll('[data-view="history"] span, [data-view="history"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.history; });
+    document.querySelectorAll('[data-view="settings"] span, [data-view="settings"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.settings; });
+
+    // Vistas específicas
+    if (document.getElementById("undo-button")) {
+      const undoSvg = document.getElementById("undo-button").querySelector('svg');
+      document.getElementById("undo-button").textContent = "";
+      document.getElementById("undo-button").appendChild(undoSvg);
+      document.getElementById("undo-button").append(` ${t.undo}`);
+    }
+    
+    document.getElementById("settings-title").textContent = t.settingsTitle;
+    document.getElementById("label-lang").textContent = t.labelLang;
+    document.getElementById("reset-text").textContent = t.resetText;
+    document.querySelector("#view-history h3").textContent = t.historyTitle;
+
+    // Diálogo
+    document.querySelector("#confirm-dialog h3").textContent = t.confirmTitle;
+    document.querySelector("#confirm-dialog p").textContent = t.confirmBody;
+    document.getElementById("confirm-cancel").textContent = t.cancel;
+    document.getElementById("confirm-accept").textContent = t.accept;
+  },
+
   showView(viewName) {
-    const viewTitles = {
-      main: "Principal",
-      weekly: "Semanal",
-      monthly: "Mensual",
-      history: "Historial",
-      settings: "Ajustes",
-    };
+    const lang = DB.getLang();
+    const t = this.translations[lang];
 
     document
       .querySelectorAll(".view")
       .forEach((v) => v.classList.add("hidden"));
     document.getElementById(`view-${viewName}`).classList.remove("hidden");
-    document.getElementById("app-title").textContent = viewTitles[viewName] || "Acciones";
+    document.getElementById("app-title").textContent = t[viewName] || t.appTitle;
 
     // Actualizar datos de calendarios al cambiar de vista
     if (viewName === "weekly") Calendar.renderWeekly();
