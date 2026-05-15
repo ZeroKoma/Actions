@@ -48,18 +48,31 @@ body {
 /* Vistas */
 .view {
   padding: 1rem;
-  animation: fadeIn 0.3s ease;
+  will-change: transform, opacity;
 }
+
+.view:not(.hidden) {
+  animation: slideIn 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
 .hidden {
   display: none !important;
 }
-@keyframes fadeIn {
-  from {
+
+@keyframes slideIn {
+  0% {
     opacity: 0;
+    transform: translateX(30px);
   }
-  to {
+  100% {
     opacity: 1;
+    transform: translateX(0);
   }
+}
+
+main#content {
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* Tarjeta Principal */
