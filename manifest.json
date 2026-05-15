@@ -1,7 +1,7 @@
 {
-    "name": "Contador de Acciones",
-    "short_name": "Contador",
-    "description": "Una aplicación sencilla para contar tus acciones diarias.",
+    "name": "Action Counter",
+    "short_name": "Counter",
+    "description": "A simple application to count your daily actions.",
     "start_url": "index.html",
     "display": "standalone",
     "background_color": "#f8fafc",
