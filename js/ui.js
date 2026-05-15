@@ -58,8 +58,8 @@ const UI = {
     if (viewName === "monthly") Calendar.renderMonthly();
     if (viewName === "history") Calendar.renderHistory();
 
-    // Actualizar estado activo en el menú
-    document.querySelectorAll(".menu-links button").forEach((btn) => {
+    // Actualizar estado activo en menú lateral y móvil
+    document.querySelectorAll(".menu-links button, .mobile-nav button").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.view === viewName);
     });
   },

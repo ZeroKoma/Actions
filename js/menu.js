@@ -9,7 +9,7 @@ const Menu = {
     this.close.onclick = () => this.hide();
     this.overlay.onclick = () => this.hide();
 
-    document.querySelectorAll(".menu-links button").forEach((btn) => {
+    document.querySelectorAll(".menu-links button, .mobile-nav button").forEach((btn) => {
       btn.onclick = () => {
         UI.showView(btn.dataset.view);
         this.hide();
