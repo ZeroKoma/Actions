@@ -9,11 +9,14 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
   - **Diary**: View exact timestamps of each action for any selected day.
   - **Weekly View**: Analyze trends with a custom SVG line chart and daily totals.
   - **Monthly View**: Full calendar grid to visualize activity patterns over the month.
+  - **Summary Reports**: Generate detailed weekly or monthly reports from settings, featuring total counts and daily averages with integrated time navigation.
 - **Customization & UI**:
   - **Dark Mode**: Fully adaptive interface for eye comfort.
   - **Multilingual Support**: Seamlessly switch between English and Spanish.
   - **Animations**: Smooth view transitions and visual feedback (like the "+1" indicator).
+  - **Gesture Navigation**: Swipe left or right on mobile devices to switch between views intuitively.
   - **Undo**: Quickly remove the last accidental entry from the main screen.
+  - **Smart Reset**: Clear your logs and action config while preserving your UI preferences (Dark Mode and Language).
 - **PWA Support**: Installable on Android and iOS for a native app experience.
 - **Privacy**: No accounts or servers required. All data stays on your device using the browser's `localStorage`.
 
@@ -37,6 +40,17 @@ This is a client-side application with no external dependencies:
 1. Clone the repository to your local machine.
 2. Open `index.html` in any modern web browser.
 3. To use it as an app, select "Add to Home Screen" from your mobile browser's menu.
+
+### How to Install as a PWA
+
+**On Android (Chrome):**
+1. Open the app URL in Chrome.
+2. Tap the three-dot menu and select **"Install app"** or **"Add to Home Screen"**.
+
+**On iOS (Safari):**
+1. Open the app URL in Safari.
+2. Tap the **Share** button (square with an upward arrow).
+3. Scroll down and select **"Add to Home Screen"**.
 
 ## 📝 Technical Details
 

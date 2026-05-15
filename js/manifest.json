@@ -1,21 +1,42 @@
 {
     "name": "Contador de Acciones",
     "short_name": "Contador",
-    "description": "Una aplicación sencilla para contar tus acciones diarias.",
+    "description": "Una aplicación sencilla y privada para contar tus acciones diarias y analizar hábitos.",
     "start_url": "../index.html",
+    "id": "/contador-acciones",
     "display": "standalone",
-    "background_color": "#f4f7f6",
-    "theme_color": "#4CAF50",
+    "background_color": "#f8fafc",
+    "theme_color": "#4f46e5",
+    "orientation": "portrait",
+    "categories": ["utilities", "productivity", "lifestyle"],
     "icons": [
         {
             "src": "../assets/icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "../assets/icon-512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Ver Diario",
+            "short_name": "Diario",
+            "description": "Ver el historial de hoy",
+            "url": "../index.html#history",
+            "icons": [{ "src": "../assets/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Ver Semanal",
+            "short_name": "Semanal",
+            "description": "Ver gráfico de la semana",
+            "url": "../index.html#weekly",
+            "icons": [{ "src": "../assets/icon-192.png", "sizes": "192x192" }]
         }
     ]
 }
