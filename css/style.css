@@ -635,6 +635,63 @@ main#content {
   background: #f1f5f9;
 }
 
+.history-day-container {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  min-height: 200px;
+}
+
+.history-summary {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.history-total-badge {
+  background: var(--primary);
+  color: white;
+  font-size: 2rem;
+  font-weight: 800;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+
+.history-time-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.history-time-item {
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--text);
+  border: 1px solid #f1f5f9;
+}
+
+.empty-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Mobile Nav Footer */
 .mobile-nav {
   display: none;

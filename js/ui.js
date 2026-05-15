@@ -1,11 +1,11 @@
 const UI = {
   translations: {
     es: {
-      appTitle: "Acciones",
+      appTitle: "Principal",
       main: "Principal",
       weekly: "Semanal",
       monthly: "Mensual",
-      history: "Historial",
+      history: "Diario",
       settings: "Ajustes",
       undo: "Deshacer",
       settingsTitle: "Configuración",
@@ -15,16 +15,17 @@ const UI = {
       confirmBody: "¿Seguro? Se borrarán todos los datos.",
       cancel: "Cancelar",
       accept: "Aceptar",
-      historyTitle: "Historial Reciente",
+      historyEmpty: "Sin actividad este día",
       weekLabel: "Semana",
-      monthLabel: "Mes"
+      monthLabel: "Mes",
+      today: "Hoy"
     },
     en: {
-      appTitle: "Actions",
+      appTitle: "Home",
       main: "Home",
       weekly: "Weekly",
       monthly: "Monthly",
-      history: "History",
+      history: "Diary",
       settings: "Settings",
       undo: "Undo",
       settingsTitle: "Configuration",
@@ -34,9 +35,10 @@ const UI = {
       confirmBody: "Are you sure? All data will be deleted.",
       cancel: "Cancel",
       accept: "Accept",
-      historyTitle: "Recent History",
+      historyEmpty: "No activity this day",
       weekLabel: "Week",
-      monthLabel: "Month"
+      monthLabel: "Month",
+      today: "Today"
     }
   },
 
@@ -88,6 +90,15 @@ const UI = {
     if (undoBtn) {
       undoBtn.onclick = () => App.undoLastAction();
     }
+
+    document.getElementById("prev-history").onclick = () => {
+      Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() - 1);
+      Calendar.renderHistory();
+    };
+    document.getElementById("next-history").onclick = () => {
+      Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() + 1);
+      Calendar.renderHistory();
+    };
   },
 
   updateLanguageStrings() {
@@ -113,7 +124,6 @@ const UI = {
     document.getElementById("settings-title").textContent = t.settingsTitle;
     document.getElementById("label-lang").textContent = t.labelLang;
     document.getElementById("reset-text").textContent = t.resetText;
-    document.querySelector("#view-history h3").textContent = t.historyTitle;
 
     // Diálogo
     document.querySelector("#confirm-dialog h3").textContent = t.confirmTitle;
