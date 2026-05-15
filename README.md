@@ -18,6 +18,7 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
   - **Undo**: Quickly remove the last accidental entry from the main screen.
   - **Smart Reset**: Clear your logs and action config while preserving your UI preferences (Dark Mode and Language).
 - **PWA Support**: Installable on Android and iOS for a native app experience.
+  - **Offline Mode**: Full offline functionality and instant loading thanks to an integrated Service Worker.
 - **Privacy**: No accounts or servers required. All data stays on your device using the browser's `localStorage`.
 
 ## 📂 Project Structure
