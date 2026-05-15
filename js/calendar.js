@@ -198,9 +198,12 @@ const Calendar = {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     // Fill leading empty days
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
     for (let i = 0; i < offset; i++) {
+      const d = prevMonthLastDay - offset + i + 1;
       const cell = document.createElement("div");
       cell.className = "day-cell other-month";
+      cell.innerHTML = `<div class="day-num">${d}</div>`;
       grid.appendChild(cell);
     }
 
@@ -226,9 +229,10 @@ const Calendar = {
     // Fill trailing empty days to complete the grid (up to 6 rows of days)
     const totalCells = offset + daysInMonth;
     const remainingCells = 42 - totalCells; // 6 weeks * 7 days = 42 cells total (including headers)
-    for (let i = 0; i < remainingCells; i++) {
+    for (let i = 1; i <= remainingCells; i++) {
       const cell = document.createElement("div");
       cell.className = "day-cell other-month";
+      cell.innerHTML = `<div class="day-num">${i}</div>`;
       grid.appendChild(cell);
     }
   },
