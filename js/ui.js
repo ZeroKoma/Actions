@@ -17,6 +17,12 @@ const UI = {
       cancel: "Cancelar",
       accept: "Aceptar",
       historyEmpty: "Sin actividad este día",
+      reports: "Informes",
+      weeklyReport: "Informe Semanal",
+      monthlyReport: "Informe Mensual",
+      totalActions: "Total de acciones",
+      dailyAverage: "Media diaria",
+      close: "Cerrar",
       weekLabel: "Semana",
       monthLabel: "Mes",
       today: "Hoy"
@@ -38,11 +44,19 @@ const UI = {
       cancel: "Cancel",
       accept: "Accept",
       historyEmpty: "No activity this day",
+      reports: "Reports",
+      weeklyReport: "Weekly Report",
+      monthlyReport: "Monthly Report",
+      totalActions: "Total actions",
+      dailyAverage: "Daily average",
+      close: "Close",
       weekLabel: "Week",
       monthLabel: "Month",
       today: "Today"
     }
   },
+
+  currentReportType: null,
 
   renderMain() {
     this.applyDarkMode();
@@ -73,6 +87,42 @@ const UI = {
     const confirmCancel = document.getElementById("confirm-cancel");
     const langSwitch = document.getElementById("lang-switch");
     const darkSwitch = document.getElementById("dark-switch");
+    const reportDialog = document.getElementById("report-dialog");
+    const reportClose = document.getElementById("report-dialog-close");
+    const btnWeekly = document.getElementById("btn-report-weekly");
+    const btnMonthly = document.getElementById("btn-report-monthly");
+    const reportPrev = document.getElementById("report-prev");
+    const reportNext = document.getElementById("report-next");
+
+    if (btnWeekly) btnWeekly.onclick = () => this.showReport("weekly");
+    if (btnMonthly) btnMonthly.onclick = () => this.showReport("monthly");
+    if (reportClose) reportClose.onclick = () => reportDialog.close();
+
+    if (reportPrev) {
+      reportPrev.onclick = () => {
+        if (this.currentReportType === "weekly") {
+          Calendar.currentWeekStart.setDate(Calendar.currentWeekStart.getDate() - 7);
+          Calendar.renderWeekly();
+        } else if (this.currentReportType === "monthly") {
+          Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() - 1);
+          Calendar.renderMonthly();
+        }
+        this.showReport(this.currentReportType);
+      };
+    }
+
+    if (reportNext) {
+      reportNext.onclick = () => {
+        if (this.currentReportType === "weekly") {
+          Calendar.currentWeekStart.setDate(Calendar.currentWeekStart.getDate() + 7);
+          Calendar.renderWeekly();
+        } else if (this.currentReportType === "monthly") {
+          Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() + 1);
+          Calendar.renderMonthly();
+        }
+        this.showReport(this.currentReportType);
+      };
+    }
 
     if (langSwitch) {
       langSwitch.checked = DB.getLang() === "en";
@@ -177,6 +227,13 @@ const UI = {
     document.querySelector("#confirm-dialog p").textContent = t.confirmBody;
     document.getElementById("confirm-cancel").textContent = t.cancel;
     document.getElementById("confirm-accept").textContent = t.accept;
+
+    if (document.getElementById("label-reports")) {
+      document.getElementById("label-reports").textContent = t.reports;
+      document.getElementById("btn-report-weekly").textContent = t.weekly;
+      document.getElementById("btn-report-monthly").textContent = t.monthly;
+      document.getElementById("report-dialog-close").textContent = t.close;
+    }
   },
 
   applyDarkMode() {
@@ -233,6 +290,70 @@ const UI = {
     document.querySelectorAll(".menu-links button, .mobile-nav button").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.view === viewName);
     });
+  },
+
+  showReport(type) {
+    this.currentReportType = type;
+    const lang = DB.getLang();
+    const t = this.translations[lang];
+    const events = DB.getEvents();
+    const reportDialog = document.getElementById("report-dialog");
+    const reportTitle = document.getElementById("report-dialog-title");
+    const reportBody = document.getElementById("report-dialog-body");
+
+    let total = 0;
+    let days = 0;
+    let periodLabel = "";
+    const locale = lang === 'en' ? 'en-US' : 'es-ES';
+
+    if (type === "weekly") {
+      const start = new Date(Calendar.currentWeekStart);
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      
+      periodLabel = `${start.toLocaleDateString(locale, { day: "numeric", month: "short" })} - ${end.toLocaleDateString(locale, { day: "numeric", month: "short" })}`;
+      reportTitle.textContent = t.weeklyReport;
+
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + i);
+        const dateStr = d.toLocaleDateString("es-ES");
+        total += events.filter((e) => e.date === dateStr).length;
+      }
+      days = 7;
+    } else {
+      const year = Calendar.currentMonthDate.getFullYear();
+      const month = Calendar.currentMonthDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      
+      periodLabel = Calendar.currentMonthDate.toLocaleDateString(locale, { month: "long", year: "numeric" });
+      reportTitle.textContent = t.monthlyReport;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = new Date(year, month, d).toLocaleDateString("es-ES");
+        total += events.filter((e) => e.date === dateStr).length;
+      }
+      days = daysInMonth;
+    }
+
+    const average = (total / days).toFixed(2);
+
+    reportBody.innerHTML = `
+      <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; font-weight: 500;">${periodLabel}</p>
+      <div style="background: #f1f5f9; padding: 1.2rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.8rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 500; color: #475569;">${t.totalActions}</span>
+          <span style="font-weight: 700; font-size: 1.2rem; color: var(--primary);">${total}</span>
+        </div>
+        <div style="height: 1px; background: #e2e8f0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 500; color: #475569;">${t.dailyAverage}</span>
+          <span style="font-weight: 700; font-size: 1.2rem; color: var(--primary);">${average}</span>
+        </div>
+      </div>
+    `;
+
+    if (!reportDialog.open) reportDialog.showModal();
   },
 
   animateClick() {
