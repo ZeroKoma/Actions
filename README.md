@@ -5,6 +5,7 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
 ## 🚀 Features
 
 - **Quick Tracking**: Tap the main card to register an event instantly.
+- **Mobile-First Experience**: Optimized UI with a bottom navigation bar and no intrusive side menus, designed for one-handed use.
 - **Detailed Analytics**:
   - **Diary**: View exact timestamps of each action for any selected day.
   - **Weekly View**: Analyze trends with a custom SVG line chart and daily totals.
@@ -14,7 +15,7 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
   - **Dark Mode**: Fully adaptive interface for eye comfort.
   - **Multilingual Support**: Seamlessly switch between English and Spanish.
   - **Animations**: Smooth view transitions and visual feedback (like the "+1" indicator).
-  - **Gesture Navigation**: Swipe left or right on mobile devices to switch between views intuitively.
+  - **Gesture Navigation**: Intuitive horizontal swipe support to navigate between Main, Diary, Weekly, Monthly, and Settings views.
   - **Undo**: Quickly remove the last accidental entry from the main screen.
   - **Smart Reset**: Clear your logs and action config while preserving your UI preferences (Dark Mode and Language).
 - **PWA Support**: Installable on Android and iOS for a native app experience.
@@ -31,7 +32,6 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
   - `calendar.js`: Manages the generation of weekly/monthly grids and the history timeline.
   - `storage.js`: A dedicated data access layer for `localStorage` (DB).
   - `utils.js`: Common utility functions for date formatting and data processing.
-  - `menu.js`: Logic for sidebar and navigation interactions.
 - `manifest.json`: Configuration for PWA installation, defining icons and theme behavior.
 
 ## 🛠️ Installation & Usage
@@ -58,6 +58,7 @@ This is a client-side application with no external dependencies:
 - **Vanilla Stack**: Built with pure HTML5, CSS3, and ES6+ JavaScript.
 - **Responsive Design**: Mobile-first approach with a dedicated bottom navigation bar for small screens.
 - **Dynamic SVG**: The weekly trend chart and icons are rendered as SVGs for high performance and clarity on all resolutions.
+- **Instant Updates**: Service Worker configured with `skipWaiting` for immediate application updates.
 - **Local Persistence**: Data survives page refreshes and browser restarts.
 
 ## 📄 License

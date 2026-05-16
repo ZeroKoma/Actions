@@ -8,7 +8,6 @@ const ASSETS = [
   './js/utils.js',
   './js/storage.js',
   './js/ui.js',
-  './js/menu.js',
   './js/calendar.js',
   './js/main.js'
 ];

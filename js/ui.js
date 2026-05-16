@@ -141,6 +141,10 @@ const UI = {
       };
     }
 
+    document.querySelectorAll(".mobile-nav button").forEach((btn) => {
+      btn.onclick = () => this.showView(btn.dataset.view);
+    });
+
     document.getElementById("reset-app").onclick = () => {
       confirmDialog.showModal();
     };
