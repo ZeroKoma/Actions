@@ -26,7 +26,9 @@ const UI = {
       weekLabel: "Semana",
       monthLabel: "Mes",
       today: "Hoy",
-      version: "Versión"
+      version: "Versión",
+      editAction: "Editar nombre",
+      editPlaceholder: "Nombre de la acción"
     },
     en: {
       appTitle: "Home",
@@ -54,7 +56,9 @@ const UI = {
       weekLabel: "Week",
       monthLabel: "Month",
       today: "Today",
-      version: "Version"
+      version: "Version",
+      editAction: "Edit name",
+      editPlaceholder: "Action name"
     }
   },
 
@@ -104,6 +108,14 @@ const UI = {
     if (btnWeekly) btnWeekly.onclick = () => this.showReport("weekly");
     if (btnMonthly) btnMonthly.onclick = () => this.showReport("monthly");
     if (reportClose) reportClose.onclick = () => reportDialog.close();
+
+    const editBtn = document.getElementById("edit-action-button");
+    if (editBtn) {
+      editBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.showEditDialog();
+      };
+    }
 
     if (reportPrev) {
       reportPrev.onclick = () => {
@@ -158,6 +170,23 @@ const UI = {
 
     confirmAccept.onclick = () => DB.clearAll();
     confirmCancel.onclick = () => confirmDialog.close();
+
+    const editSave = document.getElementById("edit-action-save");
+    const editCancel = document.getElementById("edit-action-cancel");
+    const editDialog = document.getElementById("edit-action-dialog");
+    const editInput = document.getElementById("edit-action-input");
+
+    editCancel.onclick = () => editDialog.close();
+    editSave.onclick = () => {
+      const text = editInput.value.trim();
+      if (text) {
+        const config = DB.getConfig();
+        config.text = text;
+        DB.saveConfig(config);
+        this.renderMain();
+        editDialog.close();
+      }
+    };
 
     const undoBtn = document.getElementById("undo-button");
     if (undoBtn) {
@@ -240,6 +269,11 @@ const UI = {
     document.querySelector("#confirm-dialog p").textContent = t.confirmBody;
     document.getElementById("confirm-cancel").textContent = t.cancel;
     document.getElementById("confirm-accept").textContent = t.accept;
+    
+    document.getElementById("edit-dialog-title").textContent = t.editAction;
+    document.getElementById("edit-action-input").placeholder = t.editPlaceholder;
+    document.getElementById("edit-action-cancel").textContent = t.cancel;
+    document.getElementById("edit-action-save").textContent = t.accept;
 
     if (document.getElementById("label-reports")) {
       document.getElementById("label-reports").textContent = t.reports;
@@ -252,6 +286,14 @@ const UI = {
   applyDarkMode() {
     const isDark = DB.getDarkMode();
     document.body.classList.toggle("dark-mode", isDark);
+  },
+
+  showEditDialog() {
+    const config = DB.getConfig();
+    const dialog = document.getElementById("edit-action-dialog");
+    const input = document.getElementById("edit-action-input");
+    input.value = config.text;
+    dialog.showModal();
   },
 
   showView(viewName) {

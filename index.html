@@ -22,6 +22,12 @@
         <!-- Main View -->
         <section id="view-main" class="view active">
           <div id="counter-trigger" class="counter-card">
+            <button id="edit-action-button" class="btn-edit-action" aria-label="Editar acción">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                <path d="m15 5 4 4"/>
+              </svg>
+            </button>
             <img id="display-image" src="" alt="Acción" class="hidden" />
             <h2 id="display-text" class="counter-text"></h2>
             <div class="counter-badge">
@@ -223,6 +229,20 @@
           </div>
         </section>
       </main>
+
+      <!-- Edit Action Dialog -->
+      <dialog id="edit-action-dialog" class="modal-dialog">
+        <div class="dialog-content">
+          <h3 id="edit-dialog-title">Editar nombre</h3>
+          <div style="margin: 1.5rem 0;">
+            <input type="text" id="edit-action-input" maxlength="20" class="edit-input" />
+          </div>
+          <div class="dialog-buttons">
+            <button id="edit-action-cancel" class="btn-secondary">Cancelar</button>
+            <button id="edit-action-save" class="btn-primary-action">Aceptar</button>
+          </div>
+        </div>
+      </dialog>
 
       <!-- Confirmation dialog -->
       <dialog id="confirm-dialog" class="modal-dialog">

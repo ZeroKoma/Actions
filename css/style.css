@@ -27,6 +27,8 @@ body.dark-mode .calendar-header-cell { background-color: #1e293b; border-color: 
 body.dark-mode .calendar-grid { background-color: #334155; border-color: #334155; }
 body.dark-mode .counter-text { color: var(--text-muted); }
 body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 140, 248, 0.2); }
+body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
+body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
 body.dark-mode .counter-card img { background: #334155; border-color: rgba(129, 140, 248, 0.3); }
 body.dark-mode .history-day-container { background-color: var(--card); }
 body.dark-mode .history-time-item { background-color: #0f172a; color: var(--text); border-color: #334155; }
@@ -144,6 +146,7 @@ main#content {
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
   margin: 3rem auto;
+  position: relative;
   cursor: pointer;
   width: 100%;
   max-width: 320px;
@@ -156,6 +159,23 @@ main#content {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+}
+
+.btn-edit-action {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  z-index: 5;
 }
 
 .btn-undo {
@@ -200,6 +220,17 @@ main#content {
   color: #64748b;
   margin-bottom: 0.5rem;
   text-transform: capitalize;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  font-size: 1.1rem;
+  font-weight: 500;
+  outline: none;
+  text-align: center;
 }
 
 .counter-badge {
@@ -492,6 +523,17 @@ main#content {
 .btn-danger-action {
   flex: 1;
   background: var(--danger);
+  border: none;
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-primary-action {
+  flex: 1;
+  background: var(--primary);
   border: none;
   padding: 0.75rem;
   border-radius: 10px;
