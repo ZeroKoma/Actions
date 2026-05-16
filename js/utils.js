@@ -1,5 +1,5 @@
 const Utils = {
-  VERSION: "4.0.2",
+  VERSION: "4.0.4",
 
   getTodayKey: () => new Date().toLocaleDateString("es-ES"),
 

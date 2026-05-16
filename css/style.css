@@ -25,6 +25,7 @@ body.dark-mode .day-cell .count { background-color: #334155; color: var(--text-m
 body.dark-mode .day-cell.has-activity .count { background-color: var(--primary); color: #0f172a; border: none; font-weight: 800; }
 body.dark-mode .calendar-header-cell { background-color: #1e293b; border-color: #334155; }
 body.dark-mode .calendar-grid { background-color: #334155; border-color: #334155; }
+body.dark-mode .counter-text { color: var(--text-muted); }
 body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 140, 248, 0.2); }
 body.dark-mode .counter-card img { background: #334155; border-color: rgba(129, 140, 248, 0.3); }
 body.dark-mode .history-day-container { background-color: var(--card); }
@@ -191,6 +192,14 @@ main#content {
   border: 1px solid rgba(79, 70, 229, 0.1);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
+}
+
+.counter-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  text-transform: capitalize;
 }
 
 .counter-badge {

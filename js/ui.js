@@ -78,6 +78,11 @@ const UI = {
       img.src = config.image;
       img.classList.remove("hidden");
     }
+
+    const textEl = document.getElementById("display-text");
+    if (textEl) {
+      textEl.textContent = config.text;
+    }
   },
 
   setupEventListeners() {
