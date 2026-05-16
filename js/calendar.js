@@ -3,6 +3,7 @@ const Calendar = {
   currentMonthDate: null,
   currentHistoryDate: null,
   selectedWeeklyActionId: null,
+  selectedMonthlyActionId: null,
 
   getWeekDays() {
     const lang = DB.getLang();
@@ -218,11 +219,58 @@ const Calendar = {
     }
   },
 
+  async renderMonthlyActionSelector() {
+    const container = document.getElementById("monthly-action-selector");
+    if (!container) return;
+
+    const actions = await DB.getActions();
+    if (actions.length === 0) return;
+
+    // Default to the first action if none selected
+    if (this.selectedMonthlyActionId === null) {
+      this.selectedMonthlyActionId = actions[0].id;
+    }
+
+    let html = "";
+    actions.forEach(action => {
+      html += `
+        <div class="selector-chip ${this.selectedMonthlyActionId === action.id ? 'active' : ''}" 
+             data-id="${action.id}">${action.text}</div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll(".selector-chip").forEach(chip => {
+      chip.onclick = () => {
+        this.selectedMonthlyActionId = Number(chip.dataset.id);
+        this.renderMonthlyActionSelector();
+        this.renderMonthly();
+      };
+    });
+  },
+
   async renderMonthly() {
     const grid = document.getElementById("monthly-grid");
     const label = document.getElementById("month-label");
+    const totalContainer = document.getElementById("monthly-total");
     const events = await DB.getEvents();
+    const t = this.getLabels();
+
+    // Ensure we have a selection before filtering
+    const actions = await DB.getActions();
+    if (actions.length > 0 && this.selectedMonthlyActionId === null) {
+      this.selectedMonthlyActionId = actions[0].id;
+    }
+
+    await this.renderMonthlyActionSelector();
+
+    const filteredEvents = this.selectedMonthlyActionId 
+      ? events.filter(e => e.actionId === this.selectedMonthlyActionId)
+      : events;
+
     grid.innerHTML = "";
+    let monthlyTotal = 0;
 
     const year = this.currentMonthDate.getFullYear();
     const month = this.currentMonthDate.getMonth();
@@ -253,7 +301,8 @@ const Calendar = {
 
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = new Date(year, month, d).toLocaleDateString("es-ES");
-      const count = events.filter((e) => e.date === dateStr).length;
+      const count = filteredEvents.filter((e) => e.date === dateStr).length;
+      monthlyTotal += count;
 
       const today = new Date();
       const isToday =
@@ -278,6 +327,10 @@ const Calendar = {
       cell.className = "day-cell other-month";
       cell.innerHTML = `<div class="day-num">${i}</div>`;
       grid.appendChild(cell);
+    }
+
+    if (totalContainer) {
+      totalContainer.innerHTML = `${t.monthly === "Monthly" ? "Monthly total" : "Total del mes"}: <span class="weekly-total-value">${monthlyTotal}</span>`;
     }
   },
 
