@@ -20,16 +20,23 @@ const UI = {
       reports: "Informes",
       weeklyReport: "Informe Semanal",
       monthlyReport: "Informe Mensual",
+      yearlyReport: "Informe Anual",
       totalActions: "Total de acciones",
       dailyAverage: "Media diaria",
+      monthlyAverage: "Media mensual",
       close: "Cerrar",
       weekLabel: "Semana",
       monthLabel: "Mes",
       today: "Hoy",
       version: "Versión",
+      yearly: "Anual",
       editAction: "Configurar acción",
       addAction: "Nueva acción",
-      editPlaceholder: "Nombre de la acción"
+      editPlaceholder: "Nombre de la acción",
+      editGoal: "Meta diaria (0 = libre)",
+      min: "Mínimo",
+      max: "Máximo",
+      completed: "¡Completado!"
     },
     en: {
       appTitle: "Home",
@@ -51,16 +58,23 @@ const UI = {
       reports: "Reports",
       weeklyReport: "Weekly Report",
       monthlyReport: "Monthly Report",
+      yearlyReport: "Yearly Report",
       totalActions: "Total actions",
       dailyAverage: "Daily average",
+      monthlyAverage: "Monthly average",
       close: "Close",
       weekLabel: "Week",
       monthLabel: "Month",
       today: "Today",
       version: "Version",
+      yearly: "Yearly",
       editAction: "Configure action",
       addAction: "New action",
-      editPlaceholder: "Action name"
+      editPlaceholder: "Action name",
+      editGoal: "Daily goal (0 = free)",
+      min: "Minimum",
+      max: "Maximum",
+      completed: "Completed!"
     }
   },
 
@@ -72,23 +86,29 @@ const UI = {
     this.updateLanguageStrings();
     const actions = await DB.getActions();
     const events = await DB.getEvents();
+    const today = Utils.getTodayKey();
     const container = document.getElementById("actions-container");
     if (!container) return;
     
     container.innerHTML = "";
+    const t = this.translations[DB.getLang()];
 
     actions.forEach(action => {
-      const actionEvents = events.filter(e => e.actionId === action.id);
-      const count = actionEvents.length;
+      const todayEvents = events.filter(e => e.actionId === action.id && e.date === today);
+      const count = todayEvents.length;
+      const goal = action.goal || 0;
+      const isCompleted = goal > 0 && count >= goal;
       
       const wrapper = document.createElement("div");
       wrapper.className = "action-wrapper";
       wrapper.dataset.id = action.id;
       
       wrapper.innerHTML = `
-        <div class="counter-card">
+        <div class="counter-card ${isCompleted ? 'completed' : ''}">
           <div class="card-left">
             <h2 class="counter-text">${action.text}</h2>
+            ${goal > 0 ? `<span class="goal-text">${count} / ${goal}</span>` : ''}
+            ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
           </div>
           <div class="counter-badge">
             <span>${count}</span>
@@ -134,11 +154,13 @@ const UI = {
     const reportClose = document.getElementById("report-dialog-close");
     const btnWeekly = document.getElementById("btn-report-weekly");
     const btnMonthly = document.getElementById("btn-report-monthly");
+    const btnYearly = document.getElementById("btn-report-yearly");
     const reportPrev = document.getElementById("report-prev");
     const reportNext = document.getElementById("report-next");
 
     if (btnWeekly) btnWeekly.onclick = () => this.showReport("weekly");
     if (btnMonthly) btnMonthly.onclick = () => this.showReport("monthly");
+    if (btnYearly) btnYearly.onclick = () => this.showReport("yearly");
     if (reportClose) reportClose.onclick = () => reportDialog.close();
 
     if (reportPrev) {
@@ -149,6 +171,8 @@ const UI = {
         } else if (this.currentReportType === "monthly") {
           Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() - 1);
           Calendar.renderMonthly();
+        } else if (this.currentReportType === "yearly") {
+          Calendar.currentYear--;
         }
         this.showReport(this.currentReportType);
       };
@@ -162,6 +186,8 @@ const UI = {
         } else if (this.currentReportType === "monthly") {
           Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() + 1);
           Calendar.renderMonthly();
+        } else if (this.currentReportType === "yearly") {
+          Calendar.currentYear++;
         }
         this.showReport(this.currentReportType);
       };
@@ -199,7 +225,18 @@ const UI = {
     const editCancel = document.getElementById("edit-action-cancel");
     const editDialog = document.getElementById("edit-action-dialog");
     const editInput = document.getElementById("edit-action-input");
+    const editGoalInput = document.getElementById("edit-action-goal");
     const editDelete = document.getElementById("edit-action-delete");
+
+    document.getElementById("goal-minus").onclick = () => {
+      const val = parseInt(editGoalInput.value) || 0;
+      if (val > 0) editGoalInput.value = val - 1;
+    };
+
+    document.getElementById("goal-plus").onclick = () => {
+      const val = parseInt(editGoalInput.value) || 0;
+      if (val < 99) editGoalInput.value = val + 1;
+    };
 
     editCancel.onclick = () => editDialog.close();
     editDelete.onclick = () => {
@@ -216,13 +253,18 @@ const UI = {
 
     editSave.onclick = async () => {
       const text = editInput.value.trim();
+      // Ensure the goal is at least 0
+      const goal = Math.max(0, parseInt(editGoalInput.value) || 0);
       if (text) {
         let actions = await DB.getActions();
         if (this.currentEditingId) {
           const action = actions.find(a => a.id === this.currentEditingId);
-          if (action) action.text = text;
+          if (action) {
+            action.text = text;
+            action.goal = goal;
+          }
         } else {
-          actions.push({ id: Date.now(), text });
+          actions.push({ id: Date.now(), text, goal });
         }
         await DB.saveActions(actions);
         await this.renderMain();
@@ -301,6 +343,7 @@ const UI = {
     
     document.getElementById("edit-dialog-title").textContent = t.editAction;
     document.getElementById("edit-action-input").placeholder = t.editPlaceholder;
+    document.getElementById("label-edit-goal").textContent = t.editGoal;
     document.getElementById("edit-action-cancel").textContent = t.cancel;
     document.getElementById("edit-action-save").textContent = t.accept;
 
@@ -308,6 +351,7 @@ const UI = {
       document.getElementById("label-reports").textContent = t.reports;
       document.getElementById("btn-report-weekly").textContent = t.weekly;
       document.getElementById("btn-report-monthly").textContent = t.monthly;
+      document.getElementById("btn-report-yearly").textContent = t.yearly;
       document.getElementById("report-dialog-close").textContent = t.close;
     }
   },
@@ -321,6 +365,7 @@ const UI = {
     this.currentEditingId = actionId;
     const dialog = document.getElementById("edit-action-dialog");
     const input = document.getElementById("edit-action-input");
+    const goalInput = document.getElementById("edit-action-goal");
     const deleteBtn = document.getElementById("edit-action-delete");
     const title = document.getElementById("edit-dialog-title");
     const t = this.translations[DB.getLang()];
@@ -329,10 +374,12 @@ const UI = {
       const actions = await DB.getActions();
       const action = actions.find(a => a.id === actionId);
       input.value = action ? action.text : "";
+      goalInput.value = action ? (action.goal || 0) : 0;
       title.textContent = t.editAction;
       deleteBtn.classList.remove("hidden");
     } else {
       input.value = "";
+      goalInput.value = 0;
       title.textContent = t.addAction;
       deleteBtn.classList.add("hidden");
     }
@@ -403,13 +450,15 @@ const UI = {
     const lang = DB.getLang();
     const t = this.translations[lang];
     const events = await DB.getEvents();
+    const actions = await DB.getActions();
     const reportDialog = document.getElementById("report-dialog");
     const reportTitle = document.getElementById("report-dialog-title");
     const reportBody = document.getElementById("report-dialog-body");
 
-    let total = 0;
     let days = 0;
     let periodLabel = "";
+    const periodEvents = [];
+    const now = new Date();
     const locale = lang === 'en' ? 'en-US' : 'es-ES';
 
     if (type === "weekly") {
@@ -424,10 +473,10 @@ const UI = {
         const d = new Date(start);
         d.setDate(d.getDate() + i);
         const dateStr = d.toLocaleDateString("es-ES");
-        total += events.filter((e) => e.date === dateStr).length;
+        periodEvents.push(...events.filter((e) => e.date === dateStr));
       }
       days = 7;
-    } else {
+    } else if (type === "monthly") {
       const year = Calendar.currentMonthDate.getFullYear();
       const month = Calendar.currentMonthDate.getMonth();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -437,25 +486,72 @@ const UI = {
 
       for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = new Date(year, month, d).toLocaleDateString("es-ES");
-        total += events.filter((e) => e.date === dateStr).length;
+        periodEvents.push(...events.filter((e) => e.date === dateStr));
       }
       days = daysInMonth;
+    } else if (type === "yearly") {
+      const year = Calendar.currentYear;
+      periodLabel = year.toString();
+      reportTitle.textContent = t.yearlyReport;
+      
+      periodEvents.push(...events.filter(e => {
+        const parts = e.date.split('/');
+        return parseInt(parts[2]) === year;
+      }));
+      
+      const isCurrentYear = year === now.getFullYear();
+      days = isCurrentYear ? now.getMonth() + 1 : 12;
     }
 
-    const average = (total / days).toFixed(2);
+    let actionsHtml = "";
+    const avgLabel = type === "yearly" ? t.monthlyAverage : t.dailyAverage;
+
+    actions.forEach(action => {
+      const subPeriodCounts = [];
+      
+      if (type === "yearly") {
+        for (let m = 1; m <= days; m++) {
+          const count = periodEvents.filter(e => {
+            const parts = e.date.split('/');
+            return parseInt(parts[1]) === m && e.actionId === action.id;
+          }).length;
+          subPeriodCounts.push(count);
+        }
+      } else {
+        const start = type === "weekly" ? new Date(Calendar.currentWeekStart) : new Date(Calendar.currentMonthDate.getFullYear(), Calendar.currentMonthDate.getMonth(), 1);
+        for (let i = 0; i < days; i++) {
+          const d = new Date(start);
+          d.setDate(d.getDate() + i);
+          const dateStr = d.toLocaleDateString("es-ES");
+          subPeriodCounts.push(periodEvents.filter(e => e.date === dateStr && e.actionId === action.id).length);
+        }
+      }
+
+      const actionTotal = subPeriodCounts.reduce((a, b) => a + b, 0);
+
+      if (actionTotal > 0) {
+        const actionAvg = (actionTotal / days).toFixed(2);
+        const actionMin = Math.min(...subPeriodCounts);
+        const actionMax = Math.max(...subPeriodCounts);
+
+        actionsHtml += `
+          <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg); border-radius: 12px; border: 1px solid rgba(79, 70, 229, 0.1);">
+            <h4 style="text-transform: capitalize; color: var(--primary); margin-bottom: 0.8rem; font-size: 0.95rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 0.3rem;">${action.text}</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+              <div><span style="color: #64748b;">${t.totalActions}:</span> <strong>${actionTotal}</strong></div>
+              <div><span style="color: #64748b;">${avgLabel}:</span> <strong>${actionAvg}</strong></div>
+              <div><span style="color: #64748b;">${t.min}:</span> <strong>${actionMin}</strong></div>
+              <div><span style="color: #64748b;">${t.max}:</span> <strong>${actionMax}</strong></div>
+            </div>
+          </div>
+        `;
+      }
+    });
 
     reportBody.innerHTML = `
       <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; font-weight: 500;">${periodLabel}</p>
-      <div style="background: #f1f5f9; padding: 1.2rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.8rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-weight: 500; color: #475569;">${t.totalActions}</span>
-          <span style="font-weight: 700; font-size: 1.2rem; color: var(--primary);">${total}</span>
-        </div>
-        <div style="height: 1px; background: #e2e8f0;"></div>
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-weight: 500; color: #475569;">${t.dailyAverage}</span>
-          <span style="font-weight: 700; font-size: 1.2rem; color: var(--primary);">${average}</span>
-        </div>
+      <div style="margin-bottom: 0.5rem;">
+        ${actionsHtml || `<p style="font-style: italic; color: #94a3b8; font-size: 0.85rem;">${t.historyEmpty}</p>`}
       </div>
     `;
 

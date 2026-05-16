@@ -4,6 +4,7 @@ const Calendar = {
   currentHistoryDate: null,
   selectedWeeklyActionId: null,
   selectedMonthlyActionId: null,
+  currentYear: new Date().getFullYear(),
 
   getWeekDays() {
     const lang = DB.getLang();
@@ -121,6 +122,9 @@ const Calendar = {
       this.selectedWeeklyActionId = actions[0].id;
     }
 
+    const selectedAction = actions.find(a => a.id === this.selectedWeeklyActionId);
+    const goal = selectedAction ? (selectedAction.goal || 0) : 0;
+
     await this.renderWeeklyActionSelector();
 
     const filteredEvents = this.selectedWeeklyActionId 
@@ -163,8 +167,10 @@ const Calendar = {
         currentDay.getMonth() === today.getMonth() &&
         currentDay.getFullYear() === today.getFullYear();
 
+      const isCompleted = goal > 0 && count >= goal;
+
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${currentDay.getDate()}</div>
         <div class="count">${count}</div>
@@ -263,6 +269,9 @@ const Calendar = {
       this.selectedMonthlyActionId = actions[0].id;
     }
 
+    const selectedAction = actions.find(a => a.id === this.selectedMonthlyActionId);
+    const goal = selectedAction ? (selectedAction.goal || 0) : 0;
+
     await this.renderMonthlyActionSelector();
 
     const filteredEvents = this.selectedMonthlyActionId 
@@ -310,8 +319,10 @@ const Calendar = {
         month === today.getMonth() &&
         year === today.getFullYear();
 
+      const isCompleted = goal > 0 && count >= goal;
+
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${d}</div>
         <div class="count">${count}</div>

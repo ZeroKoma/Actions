@@ -1,4 +1,4 @@
-// SW Version: 4.3.7
+// SW Version: 4.4.7
 importScripts("./js/utils.js");
 const CACHE_NAME = `action-counter-v${Utils.VERSION}`;
 const ASSETS = [
@@ -21,7 +21,7 @@ self.addEventListener("install", (e) => {
         try {
           await cache.add(asset);
         } catch (err) {
-          console.error(`Error al cachear el recurso: ${asset}`, err);
+          console.error(`Error caching resource: ${asset}`, err);
         }
       }
       return self.skipWaiting();

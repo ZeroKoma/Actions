@@ -21,15 +21,20 @@ body.dark-mode .nav-controls button:hover { background-color: #475569; }
 body.dark-mode .nav-controls button:active { background-color: #1e293b; }
 body.dark-mode .day-cell { background-color: var(--card) !important; color: var(--text); border-color: #334155; }
 body.dark-mode .day-cell.current-day { background-color: rgba(129, 140, 248, 0.15) !important; }
+body.dark-mode .day-cell.completed { border-color: #4ade80 !important; box-shadow: inset 0 0 0 1px #4ade80; }
 body.dark-mode .day-cell .count { background-color: #334155; color: var(--text-muted); border: 1px solid rgba(129, 140, 248, 0.1); }
 body.dark-mode .day-cell.has-activity .count { background-color: var(--primary); color: #0f172a; border: none; font-weight: 800; }
 body.dark-mode .calendar-header-cell { background-color: #1e293b; border-color: #334155; }
 body.dark-mode .calendar-grid { background-color: #334155; border-color: #334155; }
 body.dark-mode .counter-text { color: var(--text-muted); }
 body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 140, 248, 0.2); }
+body.dark-mode .counter-card.completed { border-color: #4ade80; background: rgba(34, 197, 94, 0.1); }
+body.dark-mode .completed-label { color: #4ade80; }
 body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
 body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
+body.dark-mode .btn-goal-adjust { background: #1e293b; border-color: #334155; color: var(--text); }
+body.dark-mode .btn-goal-adjust:active { background: #0f172a; }
 body.dark-mode .btn-icon-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 body.dark-mode .btn-danger { background: #1e293b; border-color: #334155; }
 body.dark-mode .history-action-group { border-color: #334155; }
@@ -163,6 +168,11 @@ main#content {
     box-shadow 0.2s ease;
 }
 
+.counter-card.completed {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+
 .action-wrapper {
   display: flex;
   flex-direction: column;
@@ -250,6 +260,47 @@ main#content {
   font-weight: 500;
   outline: none;
   text-align: center;
+}
+
+.goal-text {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.completed-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #16a34a;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.goal-input-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-goal-adjust {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+
+.btn-goal-adjust:active {
+  transform: scale(0.9);
 }
 
 .counter-badge {
@@ -380,6 +431,11 @@ main#content {
   box-shadow: inset 0 0 0 2px var(--primary);
   z-index: 1;
   border-radius: 4px;
+}
+
+.day-cell.completed {
+  border: 2px solid #22c55e !important;
+  box-shadow: inset 0 0 10px rgba(34, 197, 94, 0.1);
 }
 
 .day-cell.current-day .day-num {
