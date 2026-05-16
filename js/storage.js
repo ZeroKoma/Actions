@@ -1,7 +1,7 @@
 const DB = {
-  saveConfig: (config) =>
-    localStorage.setItem("app_config", JSON.stringify(config)),
-  getConfig: () => JSON.parse(localStorage.getItem("app_config")),
+  saveActions: (actions) =>
+    localStorage.setItem("app_actions", JSON.stringify(actions)),
+  getActions: () => JSON.parse(localStorage.getItem("app_actions")) || [],
 
   addEvent: (event) => {
     const events = DB.getEvents();
@@ -11,12 +11,14 @@ const DB = {
 
   getEvents: () => JSON.parse(localStorage.getItem("app_events")) || [],
 
-  removeLastEvent: () => {
+  removeLastEvent: (actionId) => {
     const events = DB.getEvents();
-    if (events.length > 0) {
-      events.pop();
-      localStorage.setItem("app_events", JSON.stringify(events));
-      return true;
+    for (let i = events.length - 1; i >= 0; i--) {
+      if (events[i].actionId === actionId) {
+        events.splice(i, 1);
+        localStorage.setItem("app_events", JSON.stringify(events));
+        return true;
+      }
     }
     return false;
   },
@@ -28,7 +30,7 @@ const DB = {
   setDarkMode: (isDark) => localStorage.setItem("app_dark_mode", isDark),
 
   clearAll: () => {
-    localStorage.removeItem("app_config");
+    localStorage.removeItem("app_actions");
     localStorage.removeItem("app_events");
     location.reload();
   },

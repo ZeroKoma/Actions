@@ -27,7 +27,8 @@ const UI = {
       monthLabel: "Mes",
       today: "Hoy",
       version: "Versión",
-      editAction: "Editar nombre",
+      editAction: "Configurar acción",
+      addAction: "Nueva acción",
       editPlaceholder: "Nombre de la acción"
     },
     en: {
@@ -57,41 +58,72 @@ const UI = {
       monthLabel: "Month",
       today: "Today",
       version: "Version",
-      editAction: "Edit name",
+      editAction: "Configure action",
+      addAction: "New action",
       editPlaceholder: "Action name"
     }
   },
 
   currentReportType: null,
+  currentEditingId: null,
 
   renderMain() {
     this.applyDarkMode();
     this.updateLanguageStrings();
-    const config = DB.getConfig();
+    const actions = DB.getActions();
     const events = DB.getEvents();
+    const container = document.getElementById("actions-container");
+    if (!container) return;
+    
+    container.innerHTML = "";
 
-    document.getElementById("main-count").textContent = events.length;
+    actions.forEach(action => {
+      const actionEvents = events.filter(e => e.actionId === action.id);
+      const count = actionEvents.length;
+      
+      const wrapper = document.createElement("div");
+      wrapper.className = "action-wrapper";
+      wrapper.dataset.id = action.id;
+      
+      wrapper.innerHTML = `
+        <div class="counter-card">
+          <div class="card-left">
+            <h2 class="counter-text">${action.text}</h2>
+          </div>
+          <div class="counter-badge">
+            <span>${count}</span>
+          </div>
+          <div class="card-right">
+            <button class="btn-edit-action" aria-label="Editar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            </button>
+            <button class="btn-undo ${count === 0 ? 'hidden' : ''}" title="${this.translations[DB.getLang()].undo}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+            </button>
+          </div>
+        </div>
+      `;
 
-    const undoBtn = document.getElementById("undo-button");
-    if (undoBtn) {
-      undoBtn.classList.toggle("hidden", events.length === 0);
-    }
+      const card = wrapper.querySelector(".counter-card");
+      card.onclick = () => App.registerClick(action.id);
+      
+      wrapper.querySelector(".btn-edit-action").onclick = (e) => {
+        e.stopPropagation();
+        this.showEditDialog(action.id);
+      };
 
-    const img = document.getElementById("display-image");
-    if (config.image) {
-      img.src = config.image;
-      img.classList.remove("hidden");
-    }
-
-    const textEl = document.getElementById("display-text");
-    if (textEl) {
-      textEl.textContent = config.text;
-    }
+      wrapper.querySelector(".btn-undo").onclick = (e) => {
+        e.stopPropagation();
+        App.undoLastAction(action.id);
+      };
+      
+      container.appendChild(wrapper);
+    });
   },
 
   setupEventListeners() {
-    document.getElementById("counter-trigger").onclick = () =>
-      App.registerClick();
+    const addActionBtn = document.getElementById("add-action-btn");
+    if (addActionBtn) addActionBtn.onclick = () => this.showEditDialog();
 
     const confirmDialog = document.getElementById("confirm-dialog");
     const confirmAccept = document.getElementById("confirm-accept");
@@ -108,14 +140,6 @@ const UI = {
     if (btnWeekly) btnWeekly.onclick = () => this.showReport("weekly");
     if (btnMonthly) btnMonthly.onclick = () => this.showReport("monthly");
     if (reportClose) reportClose.onclick = () => reportDialog.close();
-
-    const editBtn = document.getElementById("edit-action-button");
-    if (editBtn) {
-      editBtn.onclick = (e) => {
-        e.stopPropagation();
-        this.showEditDialog();
-      };
-    }
 
     if (reportPrev) {
       reportPrev.onclick = () => {
@@ -175,23 +199,32 @@ const UI = {
     const editCancel = document.getElementById("edit-action-cancel");
     const editDialog = document.getElementById("edit-action-dialog");
     const editInput = document.getElementById("edit-action-input");
+    const editDelete = document.getElementById("edit-action-delete");
 
     editCancel.onclick = () => editDialog.close();
+    editDelete.onclick = () => {
+      let actions = DB.getActions();
+      actions = actions.filter(a => a.id !== this.currentEditingId);
+      DB.saveActions(actions);
+      this.renderMain();
+      editDialog.close();
+    };
+
     editSave.onclick = () => {
       const text = editInput.value.trim();
       if (text) {
-        const config = DB.getConfig();
-        config.text = text;
-        DB.saveConfig(config);
+        let actions = DB.getActions();
+        if (this.currentEditingId) {
+          const action = actions.find(a => a.id === this.currentEditingId);
+          if (action) action.text = text;
+        } else {
+          actions.push({ id: Date.now(), text });
+        }
+        DB.saveActions(actions);
         this.renderMain();
         editDialog.close();
       }
     };
-
-    const undoBtn = document.getElementById("undo-button");
-    if (undoBtn) {
-      undoBtn.onclick = () => App.undoLastAction();
-    }
 
     document.getElementById("prev-history").onclick = () => {
       Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() - 1);
@@ -249,14 +282,6 @@ const UI = {
     document.querySelectorAll('[data-view="history"] span, [data-view="history"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.history; });
     document.querySelectorAll('[data-view="settings"] span, [data-view="settings"]').forEach(el => { if(el.tagName === 'SPAN') el.textContent = t.settings; });
 
-    // Specific views
-    if (document.getElementById("undo-button")) {
-      const undoSvg = document.getElementById("undo-button").querySelector('svg');
-      document.getElementById("undo-button").textContent = "";
-      document.getElementById("undo-button").appendChild(undoSvg);
-      document.getElementById("undo-button").append(` ${t.undo}`);
-    }
-    
     document.getElementById("settings-title").textContent = t.settingsTitle;
     document.getElementById("label-dark").textContent = t.labelDark;
     document.getElementById("label-lang").textContent = t.labelLang;
@@ -288,11 +313,24 @@ const UI = {
     document.body.classList.toggle("dark-mode", isDark);
   },
 
-  showEditDialog() {
-    const config = DB.getConfig();
+  showEditDialog(actionId = null) {
+    this.currentEditingId = actionId;
     const dialog = document.getElementById("edit-action-dialog");
     const input = document.getElementById("edit-action-input");
-    input.value = config.text;
+    const deleteBtn = document.getElementById("edit-action-delete");
+    const title = document.getElementById("edit-dialog-title");
+    const t = this.translations[DB.getLang()];
+
+    if (actionId) {
+      const action = DB.getActions().find(a => a.id === actionId);
+      input.value = action ? action.text : "";
+      title.textContent = t.editAction;
+      deleteBtn.classList.remove("hidden");
+    } else {
+      input.value = "";
+      title.textContent = t.addAction;
+      deleteBtn.classList.add("hidden");
+    }
     dialog.showModal();
   },
 
@@ -311,6 +349,12 @@ const UI = {
     document.querySelectorAll(".mobile-nav button").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.view === viewName);
     });
+
+    // Toggle FAB visibility: only show on main view
+    const fab = document.getElementById("add-action-btn");
+    if (fab) {
+      fab.classList.toggle("hidden", viewName !== "main");
+    }
 
     if (oldView === newView) return;
 
@@ -413,10 +457,13 @@ const UI = {
     if (!reportDialog.open) reportDialog.showModal();
   },
 
-  animateClick() {
-    const card = document.getElementById("counter-trigger");
+  animateClick(actionId) {
+    const wrapper = document.querySelector(`.action-wrapper[data-id="${actionId}"]`);
+    if (!wrapper) return;
+
+    const card = wrapper.querySelector(".counter-card");
     const badge = card.querySelector(".counter-badge");
-    const countEl = document.getElementById("main-count");
+    const countEl = badge.querySelector("span");
 
     // Scale animation on the card
     card.style.transform = "scale(0.95)";

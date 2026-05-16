@@ -28,8 +28,8 @@ body.dark-mode .calendar-grid { background-color: #334155; border-color: #334155
 body.dark-mode .counter-text { color: var(--text-muted); }
 body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 140, 248, 0.2); }
 body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
+body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
-body.dark-mode .counter-card img { background: #334155; border-color: rgba(129, 140, 248, 0.3); }
 body.dark-mode .history-day-container { background-color: var(--card); }
 body.dark-mode .history-time-item { background-color: #0f172a; color: var(--text); border-color: #334155; }
 body.dark-mode .weekly-chart-container { background-color: var(--card); }
@@ -139,21 +139,18 @@ main#content {
 .counter-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
-  border-radius: 32px;
-  padding: 2rem 2rem;
-  text-align: center;
+  border-radius: 24px;
+  padding: 1rem 1.5rem;
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  margin: 3rem auto;
-  position: relative;
+  margin: 0.75rem auto;
   cursor: pointer;
   width: 100%;
-  max-width: 320px;
-  min-height: 280px;
+  max-width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
   border: 1px solid rgba(79, 70, 229, 0.1);
   transition:
@@ -161,10 +158,47 @@ main#content {
     box-shadow 0.2s ease;
 }
 
+.action-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.card-left, .card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.card-left {
+  align-items: flex-start;
+}
+
+.card-right {
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.fab-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 90;
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .btn-edit-action {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
   background: #f1f5f9;
   border: none;
   width: 36px;
@@ -175,50 +209,30 @@ main#content {
   justify-content: center;
   color: #64748b;
   cursor: pointer;
-  z-index: 5;
 }
 
 .btn-undo {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: -1.2rem auto 2.5rem;
-  background: #ffffff;
+  background: var(--card);
   color: var(--primary);
   border: 1px solid rgba(79, 70, 229, 0.2);
-  padding: 0.6rem 1.25rem;
-  border-radius: 99px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  position: relative;
-  z-index: 10;
-}
-
-.counter-card img {
-  width: 90px;
-  height: 90px;
-  display: block;
-  margin: 0 auto 1rem;
-  border-radius: 50%;
-  object-fit: contain;
-  background: var(--bg);
-  padding: 12px;
-  border: 1px solid rgba(79, 70, 229, 0.1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
 }
 
 .counter-text {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #64748b;
-  margin-bottom: 0.5rem;
+  margin: 0;
   text-transform: capitalize;
 }
 
@@ -234,10 +248,10 @@ main#content {
 }
 
 .counter-badge {
-  font-size: 4rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: var(--primary);
-  margin: 1rem 0;
+  margin: 0;
   position: relative;
 }
 
@@ -542,6 +556,19 @@ main#content {
   cursor: pointer;
 }
 
+.btn-icon-danger {
+  background: #fee2e2;
+  color: #ef4444;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 .btn-danger {
   background: white;
   color: var(--danger);
@@ -726,7 +753,7 @@ main#content {
 }
 
 main#content {
-  padding-bottom: 80px;
+  padding-bottom: 160px;
 }
 
 .update-toast {

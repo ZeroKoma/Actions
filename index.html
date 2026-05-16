@@ -21,36 +21,7 @@
       <main id="content">
         <!-- Main View -->
         <section id="view-main" class="view active">
-          <div id="counter-trigger" class="counter-card">
-            <button id="edit-action-button" class="btn-edit-action" aria-label="Editar acción">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                <path d="m15 5 4 4"/>
-              </svg>
-            </button>
-            <img id="display-image" src="" alt="Acción" class="hidden" />
-            <h2 id="display-text" class="counter-text"></h2>
-            <div class="counter-badge">
-              <span id="main-count">0</span>
-            </div>
-          </div>
-          <button id="undo-button" class="btn-undo hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-              <path d="M3 3v5h5" />
-            </svg>
-            Deshacer
-          </button>
+          <div id="actions-container"></div>
         </section>
 
         <!-- Data Views (Weekly/Monthly) -->
@@ -230,6 +201,10 @@
         </section>
       </main>
 
+      <button id="add-action-btn" class="fab-btn" aria-label="Añadir">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
+
       <!-- Edit Action Dialog -->
       <dialog id="edit-action-dialog" class="modal-dialog">
         <div class="dialog-content">
@@ -238,8 +213,13 @@
             <input type="text" id="edit-action-input" maxlength="20" class="edit-input" />
           </div>
           <div class="dialog-buttons">
-            <button id="edit-action-cancel" class="btn-secondary">Cancelar</button>
-            <button id="edit-action-save" class="btn-primary-action">Aceptar</button>
+            <button id="edit-action-delete" class="btn-icon-danger">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
+            </button>
+            <div style="flex: 1; display: flex; gap: 0.75rem;">
+              <button id="edit-action-cancel" class="btn-secondary">Cancelar</button>
+              <button id="edit-action-save" class="btn-primary-action">Aceptar</button>
+            </div>
           </div>
         </div>
       </dialog>
