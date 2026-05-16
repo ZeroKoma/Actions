@@ -1,4 +1,6 @@
 const Utils = {
+  VERSION: "4.0.1",
+
   getTodayKey: () => new Date().toLocaleDateString("es-ES"),
 
   formatTimestamp: (date) => {

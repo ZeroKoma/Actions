@@ -1,4 +1,5 @@
-const CACHE_NAME = "action-counter-v4";
+importScripts("./js/utils.js");
+const CACHE_NAME = `action-counter-v${Utils.VERSION}`;
 const ASSETS = [
   "./",
   "./index.html",

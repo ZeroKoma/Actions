@@ -25,7 +25,8 @@ const UI = {
       close: "Cerrar",
       weekLabel: "Semana",
       monthLabel: "Mes",
-      today: "Hoy"
+      today: "Hoy",
+      version: "Versión"
     },
     en: {
       appTitle: "Home",
@@ -52,7 +53,8 @@ const UI = {
       close: "Close",
       weekLabel: "Week",
       monthLabel: "Month",
-      today: "Today"
+      today: "Today",
+      version: "Version"
     }
   },
 
@@ -225,6 +227,8 @@ const UI = {
     document.getElementById("label-dark").textContent = t.labelDark;
     document.getElementById("label-lang").textContent = t.labelLang;
     document.getElementById("reset-text").textContent = t.resetText;
+    document.getElementById("label-version").textContent = t.version;
+    document.getElementById("app-version").textContent = Utils.VERSION;
 
     // Dialog
     document.querySelector("#confirm-dialog h3").textContent = t.confirmTitle;
