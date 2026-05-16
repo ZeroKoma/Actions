@@ -189,10 +189,10 @@ const UI = {
     });
 
     document.getElementById("reset-app").onclick = () => {
+      confirmAccept.onclick = () => DB.clearAll();
       confirmDialog.showModal();
     };
 
-    confirmAccept.onclick = () => DB.clearAll();
     confirmCancel.onclick = () => confirmDialog.close();
 
     const editSave = document.getElementById("edit-action-save");
@@ -202,12 +202,16 @@ const UI = {
     const editDelete = document.getElementById("edit-action-delete");
 
     editCancel.onclick = () => editDialog.close();
-    editDelete.onclick = async () => {
-      let actions = await DB.getActions();
-      actions = actions.filter(a => a.id !== this.currentEditingId);
-      await DB.saveActions(actions);
-      await this.renderMain();
-      editDialog.close();
+    editDelete.onclick = () => {
+      confirmAccept.onclick = async () => {
+        let actions = await DB.getActions();
+        actions = actions.filter(a => a.id !== this.currentEditingId);
+        await DB.saveActions(actions);
+        await this.renderMain();
+        confirmDialog.close();
+        editDialog.close();
+      };
+      confirmDialog.showModal();
     };
 
     editSave.onclick = async () => {

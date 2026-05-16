@@ -30,6 +30,8 @@ body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 
 body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
 body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
+body.dark-mode .btn-icon-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+body.dark-mode .btn-danger { background: #1e293b; border-color: #334155; }
 body.dark-mode .history-action-group { border-color: #334155; }
 body.dark-mode .history-day-container { background-color: var(--card); }
 body.dark-mode .selector-chip { background-color: #334155; color: var(--text-muted); border-color: #475569; }
