@@ -19,7 +19,8 @@ A lightweight, privacy-focused Progressive Web App (PWA) designed to track daily
   - **Undo**: Quickly remove the last accidental entry from the main screen.
   - **Smart Reset**: Clear your logs and action config while preserving your UI preferences (Dark Mode and Language).
 - **PWA Support**: Installable on Android and iOS for a native app experience.
-  - **Offline Mode**: Full offline functionality and instant loading thanks to an integrated Service Worker.
+  - **Offline Mode**: Full offline functionality and instant loading thanks to the Service Worker.
+  - **Automatic Updates**: Intelligent update system that notifies the user and refreshes the app when a new version is deployed.
 - **Privacy**: No accounts or servers required. All data stays on your device using the browser's `localStorage`.
 
 ## 📂 Project Structure
@@ -58,7 +59,8 @@ This is a client-side application with no external dependencies:
 - **Vanilla Stack**: Built with pure HTML5, CSS3, and ES6+ JavaScript.
 - **Responsive Design**: Mobile-first approach with a dedicated bottom navigation bar for small screens.
 - **Dynamic SVG**: The weekly trend chart and icons are rendered as SVGs for high performance and clarity on all resolutions.
-- **Instant Updates**: Service Worker configured with `skipWaiting` for immediate application updates.
+- **Smooth Transitions**: Hardware-accelerated CSS animations for view switching (slide-in/out).
+- **Lifecycle Management**: Service Worker configured with `skipWaiting` and `controllerchange` for seamless versioning.
 - **Local Persistence**: Data survives page refreshes and browser restarts.
 
 ## 📄 License

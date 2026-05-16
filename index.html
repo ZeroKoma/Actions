@@ -312,8 +312,29 @@
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js')
-            .catch(err => console.log('SW registration failed:', err));
+          navigator.serviceWorker.register('./sw.js').then(reg => {
+            // Force an update check every time the app is opened
+            reg.update();
+          }).catch(err => console.log('SW registration failed:', err));
+        });
+
+        // Detect when the new Service Worker takes control and reloads the page
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            
+            // Create and show update notification
+            const lang = localStorage.getItem("app_lang") || "es";
+            const msg = lang === "en" ? "App updated! Reloading..." : "¡App actualizada! Recargando...";
+            const toast = document.createElement("div");
+            toast.className = "update-toast";
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            
+            // Wait a moment for the user to read the message before reloading
+            setTimeout(() => window.location.reload(), 1500);
+          }
         });
       }
     </script>

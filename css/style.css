@@ -241,7 +241,7 @@ main#content {
   animation: pop 0.2s ease-out;
 }
 
-/* Calendarios */
+/* Calendars */
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -676,6 +676,28 @@ main#content {
 
 main#content {
   padding-bottom: 80px;
+}
+
+.update-toast {
+  position: fixed;
+  bottom: 85px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 99px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 10000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  animation: toastIn 0.3s ease-out forwards;
+  white-space: nowrap;
+}
+
+@keyframes toastIn {
+  from { transform: translate(-50%, 20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
 }
 
 /* Switch / Toggle styling */
