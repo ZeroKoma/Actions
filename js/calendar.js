@@ -238,6 +238,7 @@ const Calendar = {
 
   async renderHistory() {
     const events = await DB.getEvents();
+    const actions = await DB.getActions();
     const container = document.getElementById("history-list");
     const label = document.getElementById("history-date-label");
     const t = this.getLabels();
@@ -254,18 +255,31 @@ const Calendar = {
       return;
     }
 
-    container.innerHTML = `
-      <div class="history-summary">
-        <span class="history-total-badge">${dayEvents.length}</span>
-      </div>
-      <div class="history-time-grid">
-        ${dayEvents.map(e => `
-          <div class="history-time-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>${e.time}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
+    container.innerHTML = "";
+
+    actions.forEach(action => {
+      const actionEvents = dayEvents.filter(e => e.actionId === action.id);
+      if (actionEvents.length === 0) return;
+
+      const group = document.createElement("div");
+      group.className = "history-action-group";
+      group.innerHTML = `
+        <div class="history-action-header">
+          <span class="history-action-name">${action.text}</span>
+          <span class="history-total-badge">${actionEvents.length}</span>
+        </div>
+        <div class="history-time-grid">
+          ${actionEvents.map(e => `
+            <div class="history-time-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <span>${e.time}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      container.appendChild(group);
+    });
   },
 };

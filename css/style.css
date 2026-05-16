@@ -30,6 +30,7 @@ body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 
 body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
 body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
+body.dark-mode .history-action-group { border-color: #334155; }
 body.dark-mode .history-day-container { background-color: var(--card); }
 body.dark-mode .history-time-item { background-color: #0f172a; color: var(--text); border-color: #334155; }
 body.dark-mode .weekly-chart-container { background-color: var(--card); }
@@ -665,24 +666,43 @@ main#content {
   min-height: 200px;
 }
 
-.history-summary {
+.history-action-group {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.history-action-group:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.history-action-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.history-action-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: capitalize;
 }
 
 .history-total-badge {
   background: var(--primary);
   color: white;
-  font-size: 2rem;
-  font-weight: 800;
-  width: 60px;
-  height: 60px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 2px 5px rgba(79, 70, 229, 0.2);
 }
 
 .history-time-grid {
