@@ -261,7 +261,7 @@ main#content {
 /* Action Selector Chips */
 .action-selector {
   display: flex;
-  flex-wrap: wrap; /* Permite que las pills bajen a la siguiente fila */
+  flex-wrap: wrap; /* Allow pills to wrap to the next line */
   gap: 10px;
   padding: 5px 2px;
   margin-bottom: 1rem;
@@ -275,9 +275,11 @@ main#content {
   font-size: 0.85rem;
   font-weight: 600;
   color: #64748b;
-  white-space: normal; /* Permite que el texto dentro de la pill también ajuste si es extremadamente largo */
+  white-space: normal; /* Allow text to wrap inside the pill if it's very long */
   word-break: break-word;
-  max-width: 100%; /* Asegura que una sola pill no sea más ancha que la pantalla */
+  max-width: 100%; /* Ensure a single pill is not wider than the screen */
+  user-select: none; /* Prevent text selection to avoid browser search pop-ups */
+  -webkit-user-select: none;
   cursor: pointer;
   transition: all 0.2s ease;
 }
