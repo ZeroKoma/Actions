@@ -28,7 +28,11 @@ const UI = {
       editGoal: "Meta diaria (0 = libre)",
       min: "Mínimo",
       max: "Máximo",
-      completed: "¡Completado!"
+      completed: "¡Completado!",
+      manualTitle: "Registro Manual",
+      labelAction: "Acción",
+      labelDate: "Fecha",
+      labelTime: "Hora"
     },
     en: {
       appTitle: "Home",
@@ -58,7 +62,11 @@ const UI = {
       editGoal: "Daily goal (0 = free)",
       min: "Minimum",
       max: "Maximum",
-      completed: "Completed!"
+      completed: "Completed!",
+      manualTitle: "Manual Entry",
+      labelAction: "Action",
+      labelDate: "Date",
+      labelTime: "Time"
     }
   },
 
@@ -211,13 +219,55 @@ const UI = {
       }
     };
 
-    document.getElementById("prev-history").onclick = () => {
-      Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() - 1);
-      Calendar.renderHistory();
-    };
-    document.getElementById("next-history").onclick = () => {
-      Calendar.currentHistoryDate.setDate(Calendar.currentHistoryDate.getDate() + 1);
-      Calendar.renderHistory();
+    // Manual Entry listeners
+    const manualDialog = document.getElementById("manual-entry-dialog");
+    const manualBtn = document.getElementById("btn-manual-entry");
+    if (manualBtn) manualBtn.onclick = () => this.showManualEntryDialog();
+    
+    document.getElementById("manual-cancel").onclick = () => manualDialog.close();
+    document.getElementById("manual-save").onclick = async () => {
+      const actionId = Number(document.getElementById("manual-action-select").value);
+      const dateVal = document.getElementById("manual-date-input").value;
+      const timeVal = document.getElementById("manual-time-input").value;
+
+      if (actionId && dateVal && timeVal) {
+        const actions = await DB.getActions();
+        const action = actions.find(a => a.id === actionId);
+        
+        // Use a neutral hour to avoid timezone shifts during string conversion
+        const tempDate = new Date(`${dateVal}T12:00:00`);
+        const formattedDate = tempDate.toLocaleDateString("es-ES");
+        const fullIso = new Date(`${dateVal}T${timeVal}`).toISOString();
+
+        const event = {
+          id: Date.now(),
+          actionId: action.id,
+          actionText: action.text,
+          full: fullIso,
+          date: formattedDate,
+          time: timeVal
+        };
+
+        await DB.addEvent(event);
+        
+        // Sync calendar filters to the action we just updated
+        Calendar.selectedWeeklyActionId = action.id;
+        Calendar.selectedMonthlyActionId = action.id;
+
+        await this.renderMain();
+        await Calendar.renderAll(); // Refresh without resetting date context
+        
+        // Show success feedback
+        const lang = DB.getLang();
+        const msg = lang === "en" ? "Entry saved!" : "¡Registro guardado!";
+        const toast = document.createElement("div");
+        toast.className = "update-toast";
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+
+        manualDialog.close();
+      }
     };
 
     // Touch gestures for horizontal navigation between screens
@@ -288,6 +338,12 @@ const UI = {
     document.getElementById("history-today-btn").textContent = t.today;
     document.getElementById("weekly-today-btn").textContent = t.today;
     document.getElementById("monthly-today-btn").textContent = t.today;
+    document.getElementById("manual-dialog-title").textContent = t.manualTitle;
+    document.getElementById("label-manual-action").textContent = t.labelAction;
+    document.getElementById("label-manual-date").textContent = t.labelDate;
+    document.getElementById("label-manual-time").textContent = t.labelTime;
+    document.getElementById("manual-cancel").textContent = t.cancel;
+    document.getElementById("manual-save").textContent = t.accept;
   },
 
   applyDarkMode() {
@@ -320,6 +376,23 @@ const UI = {
     dialog.showModal();
   },
 
+  async showManualEntryDialog() {
+    const actions = await DB.getActions();
+    const select = document.getElementById("manual-action-select");
+    const dateInput = document.getElementById("manual-date-input");
+    const timeInput = document.getElementById("manual-time-input");
+    
+    // Fill actions dropdown
+    select.innerHTML = actions.map(a => `<option value="${a.id}">${a.text}</option>`).join('');
+    
+    // Default to current date and time
+    const now = new Date();
+    dateInput.value = now.toISOString().split('T')[0];
+    timeInput.value = now.toTimeString().slice(0, 5);
+    
+    document.getElementById("manual-entry-dialog").showModal();
+  },
+
   showView(viewName) {
     const lang = DB.getLang();
     const t = this.translations[lang];
@@ -340,6 +413,12 @@ const UI = {
     const fab = document.getElementById("add-action-btn");
     if (fab) {
       fab.classList.toggle("hidden", viewName !== "main");
+    }
+
+    // Toggle Manual Entry visibility: hide on settings view
+    const manualBtn = document.getElementById("btn-manual-entry");
+    if (manualBtn) {
+      manualBtn.classList.toggle("hidden", viewName === "settings");
     }
 
     if (oldView === newView) return;

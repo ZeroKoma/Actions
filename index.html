@@ -17,6 +17,11 @@
     <div id="app">
       <header class="app-header">
         <h1 id="app-title">Principal</h1>
+        <button id="btn-manual-entry" class="btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
       </header>
       <main id="content">
         <!-- Main View -->
@@ -228,6 +233,31 @@
               <button id="edit-action-cancel" class="btn-secondary">Cancelar</button>
               <button id="edit-action-save" class="btn-primary-action">Aceptar</button>
             </div>
+          </div>
+        </div>
+      </dialog>
+
+      <!-- Manual Entry Dialog -->
+      <dialog id="manual-entry-dialog" class="modal-dialog">
+        <div class="dialog-content">
+          <h3 id="manual-dialog-title">Registro Manual</h3>
+          <div class="manual-form-fields">
+            <div>
+              <label id="label-manual-action" class="field-label">Acción</label>
+              <select id="manual-action-select" class="edit-input"></select>
+            </div>
+            <div>
+              <label id="label-manual-date" class="field-label">Fecha</label>
+              <input type="date" id="manual-date-input" class="edit-input" />
+            </div>
+            <div>
+              <label id="label-manual-time" class="field-label">Hora</label>
+              <input type="time" id="manual-time-input" class="edit-input" />
+            </div>
+          </div>
+          <div class="dialog-buttons">
+            <button id="manual-cancel" class="btn-secondary">Cancelar</button>
+            <button id="manual-save" class="btn-primary-action">Guardar</button>
           </div>
         </div>
       </dialog>

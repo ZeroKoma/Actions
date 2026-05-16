@@ -19,13 +19,18 @@ const Calendar = {
 
   async init() {
     const now = new Date();
-    this.currentWeekStart = this.getStartOfWeek(now);
-    this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    // Only set initial dates if they haven't been set yet to preserve user context
+    if (!this.currentWeekStart) this.currentWeekStart = this.getStartOfWeek(now);
+    if (!this.currentMonthDate) this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
     
-    this.currentHistoryDate = await this.getInitialHistoryDate();
+    if (!this.currentHistoryDate) this.currentHistoryDate = await this.getInitialHistoryDate();
 
     this.weekDays = this.getWeekDays();
     this.setupListeners();
+    await this.renderAll();
+  },
+
+  async renderAll() {
     await Promise.all([this.renderWeekly(), this.renderMonthly(), this.renderHistory()]);
   },
 

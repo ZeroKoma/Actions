@@ -34,6 +34,11 @@ body.dark-mode .btn-edit-action { background: #334155; color: #94a3b8; }
 body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
 body.dark-mode .btn-today-link { color: var(--primary); }
+body.dark-mode .manual-form-fields .edit-input { background-color: #0f172a; border-color: #334155; color: var(--text); }
+body.dark-mode .manual-form-fields select.edit-input { background-color: #0f172a; border-color: #334155; color: var(--text); }
+body.dark-mode input::-webkit-calendar-picker-indicator {
+  filter: invert(1) !important; /* Turns black icons white for all temporal inputs */
+}
 body.dark-mode .btn-goal-adjust { background: #1e293b; border-color: #334155; color: var(--text); }
 body.dark-mode .btn-goal-adjust:active { background: #0f172a; }
 body.dark-mode .btn-icon-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
@@ -71,11 +76,19 @@ body {
   color: white;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between; /* Distribute items to edges */
   padding: 0 1rem;
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.app-header h1 {
+  margin: 0 auto; /* Center the title */
+}
+
+.btn-icon {
+  /* Existing styles for btn-icon already define width/height */
 }
 
 .btn-icon {
@@ -252,6 +265,14 @@ main#content {
   text-transform: capitalize;
 }
 
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
 .edit-input {
   width: 100%;
   padding: 0.8rem;
@@ -261,6 +282,22 @@ main#content {
   font-weight: 500;
   outline: none;
   text-align: center;
+}
+
+.manual-form-fields {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  text-align: left;
+}
+
+.manual-form-fields select.edit-input {
+  appearance: none; /* Remove default arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  padding-right: 2.5rem; /* Make space for the custom arrow */
 }
 
 .goal-text {
