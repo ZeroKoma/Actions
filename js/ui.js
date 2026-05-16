@@ -67,11 +67,11 @@ const UI = {
   currentReportType: null,
   currentEditingId: null,
 
-  renderMain() {
+  async renderMain() {
     this.applyDarkMode();
     this.updateLanguageStrings();
-    const actions = DB.getActions();
-    const events = DB.getEvents();
+    const actions = await DB.getActions();
+    const events = await DB.getEvents();
     const container = document.getElementById("actions-container");
     if (!container) return;
     
@@ -202,26 +202,26 @@ const UI = {
     const editDelete = document.getElementById("edit-action-delete");
 
     editCancel.onclick = () => editDialog.close();
-    editDelete.onclick = () => {
-      let actions = DB.getActions();
+    editDelete.onclick = async () => {
+      let actions = await DB.getActions();
       actions = actions.filter(a => a.id !== this.currentEditingId);
-      DB.saveActions(actions);
-      this.renderMain();
+      await DB.saveActions(actions);
+      await this.renderMain();
       editDialog.close();
     };
 
-    editSave.onclick = () => {
+    editSave.onclick = async () => {
       const text = editInput.value.trim();
       if (text) {
-        let actions = DB.getActions();
+        let actions = await DB.getActions();
         if (this.currentEditingId) {
           const action = actions.find(a => a.id === this.currentEditingId);
           if (action) action.text = text;
         } else {
           actions.push({ id: Date.now(), text });
         }
-        DB.saveActions(actions);
-        this.renderMain();
+        await DB.saveActions(actions);
+        await this.renderMain();
         editDialog.close();
       }
     };
@@ -313,7 +313,7 @@ const UI = {
     document.body.classList.toggle("dark-mode", isDark);
   },
 
-  showEditDialog(actionId = null) {
+  async showEditDialog(actionId = null) {
     this.currentEditingId = actionId;
     const dialog = document.getElementById("edit-action-dialog");
     const input = document.getElementById("edit-action-input");
@@ -322,7 +322,8 @@ const UI = {
     const t = this.translations[DB.getLang()];
 
     if (actionId) {
-      const action = DB.getActions().find(a => a.id === actionId);
+      const actions = await DB.getActions();
+      const action = actions.find(a => a.id === actionId);
       input.value = action ? action.text : "";
       title.textContent = t.editAction;
       deleteBtn.classList.remove("hidden");
@@ -393,11 +394,11 @@ const UI = {
     if (viewName === "history") Calendar.renderHistory();
   },
 
-  showReport(type) {
+  async showReport(type) {
     this.currentReportType = type;
     const lang = DB.getLang();
     const t = this.translations[lang];
-    const events = DB.getEvents();
+    const events = await DB.getEvents();
     const reportDialog = document.getElementById("report-dialog");
     const reportTitle = document.getElementById("report-dialog-title");
     const reportBody = document.getElementById("report-dialog-body");

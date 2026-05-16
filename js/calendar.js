@@ -15,22 +15,21 @@ const Calendar = {
     return UI.translations[lang];
   },
 
-  init() {
+  async init() {
     const now = new Date();
     this.currentWeekStart = this.getStartOfWeek(now);
     this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    this.currentHistoryDate = this.getInitialHistoryDate();
+    
+    this.currentHistoryDate = await this.getInitialHistoryDate();
 
     this.weekDays = this.getWeekDays();
     this.setupListeners();
-    this.renderHistory();
-    this.renderWeekly();
-    this.renderMonthly();
+    await Promise.all([this.renderWeekly(), this.renderMonthly(), this.renderHistory()]);
   },
 
-  getInitialHistoryDate() {
+  async getInitialHistoryDate() {
     const now = new Date();
-    const events = DB.getEvents();
+    const events = await DB.getEvents();
     if (events.length === 0) return now;
 
     const todayStr = now.toLocaleDateString("es-ES");
@@ -76,12 +75,12 @@ const Calendar = {
     };
   },
 
-  renderWeekly() {
+  async renderWeekly() {
     const grid = document.getElementById("weekly-grid");
     const label = document.getElementById("week-label");
     const chartContainer = document.getElementById("weekly-chart");
     const totalContainer = document.getElementById("weekly-total");
-    const events = DB.getEvents();
+    const events = await DB.getEvents();
     grid.innerHTML = "";
     const dailyData = [];
     const t = this.getLabels();
@@ -174,10 +173,10 @@ const Calendar = {
     }
   },
 
-  renderMonthly() {
+  async renderMonthly() {
     const grid = document.getElementById("monthly-grid");
     const label = document.getElementById("month-label");
-    const events = DB.getEvents();
+    const events = await DB.getEvents();
     grid.innerHTML = "";
 
     const year = this.currentMonthDate.getFullYear();
@@ -237,8 +236,8 @@ const Calendar = {
     }
   },
 
-  renderHistory() {
-    const events = DB.getEvents();
+  async renderHistory() {
+    const events = await DB.getEvents();
     const container = document.getElementById("history-list");
     const label = document.getElementById("history-date-label");
     const t = this.getLabels();

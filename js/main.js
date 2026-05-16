@@ -1,40 +1,30 @@
-document.addEventListener("DOMContentLoaded", () => {
-  let actions = DB.getActions();
+document.addEventListener("DOMContentLoaded", async () => {
+  await DB.migrateFromLocalStorage();
+  let actions = await DB.getActions();
+  const events = await DB.getEvents();
   
-  // Migration logic
-  const oldConfig = JSON.parse(localStorage.getItem("app_config"));
-  if (oldConfig && actions.length === 0) {
-    actions = [{ id: Date.now(), ...oldConfig }];
-    DB.saveActions(actions);
-    localStorage.removeItem("app_config");
-  }
-
-  if (actions.length === 0) {
-    actions = [{ id: Date.now(), text: "Acción" }];
-    DB.saveActions(actions);
-  }
-
-  // Event migration
-  const events = DB.getEvents();
-  if (events.length > 0 && !events[0].actionId) {
-    const firstId = actions[0].id;
-    events.forEach(e => e.actionId = firstId);
-    localStorage.setItem("app_events", JSON.stringify(events));
+  if (actions.length === 0 && events.length === 0) {
+    // If we have orphaned events, use the ID of the first one found
+    const firstEvent = events[0];
+    const recoveryId = firstEvent ? firstEvent.actionId : Date.now();
+    
+    actions = [{ id: recoveryId, text: "Acción" }];
+    await DB.saveActions(actions);
   }
 
   App.init();
 });
 
 const App = {
-  init() {
-    UI.renderMain();
+  async init() {
+    await UI.renderMain();
     UI.setupEventListeners();
-    Calendar.init();
+    await Calendar.init();
     UI.showView('main');
   },
 
-  registerClick(actionId) {
-    const actions = DB.getActions();
+  async registerClick(actionId) {
+    const actions = await DB.getActions();
     const action = actions.find(a => a.id === actionId);
     if (!action) return;
 
@@ -46,14 +36,14 @@ const App = {
       ...Utils.formatTimestamp(now),
     };
 
-    DB.addEvent(event);
-    UI.renderMain();
+    await DB.addEvent(event);
+    await UI.renderMain();
     UI.animateClick(actionId);
   },
 
-  undoLastAction(actionId) {
-    if (DB.removeLastEvent(actionId)) {
-      UI.renderMain();
+  async undoLastAction(actionId) {
+    if (await DB.removeLastEvent(actionId)) {
+      await UI.renderMain();
     }
   },
 };
