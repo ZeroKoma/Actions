@@ -2,6 +2,7 @@ const Calendar = {
   currentWeekStart: null,
   currentMonthDate: null,
   currentHistoryDate: null,
+  selectedWeeklyActionId: null,
 
   getWeekDays() {
     const lang = DB.getLang();
@@ -75,12 +76,56 @@ const Calendar = {
     };
   },
 
+  async renderWeeklyActionSelector() {
+    const container = document.getElementById("weekly-action-selector");
+    if (!container) return;
+
+    const actions = await DB.getActions();
+    if (actions.length === 0) return;
+
+    // Default to the first action if none selected
+    if (this.selectedWeeklyActionId === null) {
+      this.selectedWeeklyActionId = actions[0].id;
+    }
+
+    let html = "";
+    actions.forEach(action => {
+      html += `
+        <div class="selector-chip ${this.selectedWeeklyActionId === action.id ? 'active' : ''}" 
+             data-id="${action.id}">${action.text}</div>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    container.querySelectorAll(".selector-chip").forEach(chip => {
+      chip.onclick = () => {
+        this.selectedWeeklyActionId = Number(chip.dataset.id);
+        this.renderWeeklyActionSelector();
+        this.renderWeekly();
+      };
+    });
+  },
+
   async renderWeekly() {
     const grid = document.getElementById("weekly-grid");
     const label = document.getElementById("week-label");
     const chartContainer = document.getElementById("weekly-chart");
     const totalContainer = document.getElementById("weekly-total");
     const events = await DB.getEvents();
+    
+    // Ensure we have a selection before filtering
+    const actions = await DB.getActions();
+    if (actions.length > 0 && this.selectedWeeklyActionId === null) {
+      this.selectedWeeklyActionId = actions[0].id;
+    }
+
+    await this.renderWeeklyActionSelector();
+
+    const filteredEvents = this.selectedWeeklyActionId 
+      ? events.filter(e => e.actionId === this.selectedWeeklyActionId)
+      : events;
+
     grid.innerHTML = "";
     const dailyData = [];
     const t = this.getLabels();
@@ -103,7 +148,7 @@ const Calendar = {
       const currentDay = new Date(start);
       currentDay.setDate(currentDay.getDate() + i);
       const dateStr = currentDay.toLocaleDateString("es-ES"); // Date key is kept in es-ES for compatibility with DB
-      const count = events.filter((e) => e.date === dateStr).length;
+      const count = filteredEvents.filter((e) => e.date === dateStr).length;
 
       dailyData.push({
         count,

@@ -32,6 +32,8 @@ body.dark-mode .fab-btn { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 body.dark-mode .edit-input { background: #0f172a; border-color: #334155; color: var(--text); }
 body.dark-mode .history-action-group { border-color: #334155; }
 body.dark-mode .history-day-container { background-color: var(--card); }
+body.dark-mode .selector-chip { background-color: #334155; color: var(--text-muted); border-color: #475569; }
+body.dark-mode .selector-chip.active { background-color: var(--primary); color: #0f172a; }
 body.dark-mode .history-time-item { background-color: #0f172a; color: var(--text); border-color: #334155; }
 body.dark-mode .weekly-chart-container { background-color: var(--card); }
 body.dark-mode .weekly-total-container { background-color: var(--card); }
@@ -254,6 +256,36 @@ main#content {
   color: var(--primary);
   margin: 0;
   position: relative;
+}
+
+/* Action Selector Chips */
+.action-selector {
+  display: flex;
+  flex-wrap: wrap; /* Permite que las pills bajen a la siguiente fila */
+  gap: 10px;
+  padding: 5px 2px;
+  margin-bottom: 1rem;
+}
+
+.selector-chip {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 99px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  white-space: normal; /* Permite que el texto dentro de la pill también ajuste si es extremadamente largo */
+  word-break: break-word;
+  max-width: 100%; /* Asegura que una sola pill no sea más ancha que la pantalla */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.selector-chip.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }
 
 .click-indicator {
