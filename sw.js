@@ -1,4 +1,4 @@
-const CACHE_NAME = 'action-counter-v1';
+const CACHE_NAME = 'action-counter-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -10,21 +10,28 @@ const ASSETS = [
   './js/ui.js',
   './js/menu.js',
   './js/calendar.js',
-  './js/main.js',
-  './icons/apple-touch-icon.png',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './js/main.js'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const asset of ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.error(`Error al cachear el recurso: ${asset}`, err);
+        }
+      }
+      return self.skipWaiting();
+    })
   );
 });
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
 
