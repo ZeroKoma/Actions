@@ -17,19 +17,11 @@ const UI = {
       cancel: "Cancelar",
       accept: "Aceptar",
       historyEmpty: "Sin actividad este día",
-      reports: "Informes",
-      weeklyReport: "Informe Semanal",
-      monthlyReport: "Informe Mensual",
-      yearlyReport: "Informe Anual",
-      totalActions: "Total de acciones",
-      dailyAverage: "Media diaria",
-      monthlyAverage: "Media mensual",
       close: "Cerrar",
       weekLabel: "Semana",
       monthLabel: "Mes",
       today: "Hoy",
       version: "Versión",
-      yearly: "Anual",
       editAction: "Configurar acción",
       addAction: "Nueva acción",
       editPlaceholder: "Nombre de la acción",
@@ -55,19 +47,11 @@ const UI = {
       cancel: "Cancel",
       accept: "Accept",
       historyEmpty: "No activity this day",
-      reports: "Reports",
-      weeklyReport: "Weekly Report",
-      monthlyReport: "Monthly Report",
-      yearlyReport: "Yearly Report",
-      totalActions: "Total actions",
-      dailyAverage: "Daily average",
-      monthlyAverage: "Monthly average",
       close: "Close",
       weekLabel: "Week",
       monthLabel: "Month",
       today: "Today",
       version: "Version",
-      yearly: "Yearly",
       editAction: "Configure action",
       addAction: "New action",
       editPlaceholder: "Action name",
@@ -78,7 +62,6 @@ const UI = {
     }
   },
 
-  currentReportType: null,
   currentEditingId: null,
 
   async renderMain() {
@@ -150,48 +133,6 @@ const UI = {
     const confirmCancel = document.getElementById("confirm-cancel");
     const langSwitch = document.getElementById("lang-switch");
     const darkSwitch = document.getElementById("dark-switch");
-    const reportDialog = document.getElementById("report-dialog");
-    const reportClose = document.getElementById("report-dialog-close");
-    const btnWeekly = document.getElementById("btn-report-weekly");
-    const btnMonthly = document.getElementById("btn-report-monthly");
-    const btnYearly = document.getElementById("btn-report-yearly");
-    const reportPrev = document.getElementById("report-prev");
-    const reportNext = document.getElementById("report-next");
-
-    if (btnWeekly) btnWeekly.onclick = () => this.showReport("weekly");
-    if (btnMonthly) btnMonthly.onclick = () => this.showReport("monthly");
-    if (btnYearly) btnYearly.onclick = () => this.showReport("yearly");
-    if (reportClose) reportClose.onclick = () => reportDialog.close();
-
-    if (reportPrev) {
-      reportPrev.onclick = () => {
-        if (this.currentReportType === "weekly") {
-          Calendar.currentWeekStart.setDate(Calendar.currentWeekStart.getDate() - 7);
-          Calendar.renderWeekly();
-        } else if (this.currentReportType === "monthly") {
-          Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() - 1);
-          Calendar.renderMonthly();
-        } else if (this.currentReportType === "yearly") {
-          Calendar.currentYear--;
-        }
-        this.showReport(this.currentReportType);
-      };
-    }
-
-    if (reportNext) {
-      reportNext.onclick = () => {
-        if (this.currentReportType === "weekly") {
-          Calendar.currentWeekStart.setDate(Calendar.currentWeekStart.getDate() + 7);
-          Calendar.renderWeekly();
-        } else if (this.currentReportType === "monthly") {
-          Calendar.currentMonthDate.setMonth(Calendar.currentMonthDate.getMonth() + 1);
-          Calendar.renderMonthly();
-        } else if (this.currentReportType === "yearly") {
-          Calendar.currentYear++;
-        }
-        this.showReport(this.currentReportType);
-      };
-    }
 
     if (langSwitch) {
       langSwitch.checked = DB.getLang() === "en";
@@ -346,14 +287,6 @@ const UI = {
     document.getElementById("label-edit-goal").textContent = t.editGoal;
     document.getElementById("edit-action-cancel").textContent = t.cancel;
     document.getElementById("edit-action-save").textContent = t.accept;
-
-    if (document.getElementById("label-reports")) {
-      document.getElementById("label-reports").textContent = t.reports;
-      document.getElementById("btn-report-weekly").textContent = t.weekly;
-      document.getElementById("btn-report-monthly").textContent = t.monthly;
-      document.getElementById("btn-report-yearly").textContent = t.yearly;
-      document.getElementById("report-dialog-close").textContent = t.close;
-    }
   },
 
   applyDarkMode() {
@@ -443,119 +376,6 @@ const UI = {
     if (viewName === "weekly") Calendar.renderWeekly();
     if (viewName === "monthly") Calendar.renderMonthly();
     if (viewName === "history") Calendar.renderHistory();
-  },
-
-  async showReport(type) {
-    this.currentReportType = type;
-    const lang = DB.getLang();
-    const t = this.translations[lang];
-    const events = await DB.getEvents();
-    const actions = await DB.getActions();
-    const reportDialog = document.getElementById("report-dialog");
-    const reportTitle = document.getElementById("report-dialog-title");
-    const reportBody = document.getElementById("report-dialog-body");
-
-    let days = 0;
-    let periodLabel = "";
-    const periodEvents = [];
-    const now = new Date();
-    const locale = lang === 'en' ? 'en-US' : 'es-ES';
-
-    if (type === "weekly") {
-      const start = new Date(Calendar.currentWeekStart);
-      const end = new Date(start);
-      end.setDate(end.getDate() + 6);
-      
-      periodLabel = `${start.toLocaleDateString(locale, { day: "numeric", month: "short" })} - ${end.toLocaleDateString(locale, { day: "numeric", month: "short" })}`;
-      reportTitle.textContent = t.weeklyReport;
-
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(start);
-        d.setDate(d.getDate() + i);
-        const dateStr = d.toLocaleDateString("es-ES");
-        periodEvents.push(...events.filter((e) => e.date === dateStr));
-      }
-      days = 7;
-    } else if (type === "monthly") {
-      const year = Calendar.currentMonthDate.getFullYear();
-      const month = Calendar.currentMonthDate.getMonth();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
-      periodLabel = Calendar.currentMonthDate.toLocaleDateString(locale, { month: "long", year: "numeric" });
-      reportTitle.textContent = t.monthlyReport;
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = new Date(year, month, d).toLocaleDateString("es-ES");
-        periodEvents.push(...events.filter((e) => e.date === dateStr));
-      }
-      days = daysInMonth;
-    } else if (type === "yearly") {
-      const year = Calendar.currentYear;
-      periodLabel = year.toString();
-      reportTitle.textContent = t.yearlyReport;
-      
-      periodEvents.push(...events.filter(e => {
-        const parts = e.date.split('/');
-        return parseInt(parts[2]) === year;
-      }));
-      
-      const isCurrentYear = year === now.getFullYear();
-      days = isCurrentYear ? now.getMonth() + 1 : 12;
-    }
-
-    let actionsHtml = "";
-    const avgLabel = type === "yearly" ? t.monthlyAverage : t.dailyAverage;
-
-    actions.forEach(action => {
-      const subPeriodCounts = [];
-      
-      if (type === "yearly") {
-        for (let m = 1; m <= days; m++) {
-          const count = periodEvents.filter(e => {
-            const parts = e.date.split('/');
-            return parseInt(parts[1]) === m && e.actionId === action.id;
-          }).length;
-          subPeriodCounts.push(count);
-        }
-      } else {
-        const start = type === "weekly" ? new Date(Calendar.currentWeekStart) : new Date(Calendar.currentMonthDate.getFullYear(), Calendar.currentMonthDate.getMonth(), 1);
-        for (let i = 0; i < days; i++) {
-          const d = new Date(start);
-          d.setDate(d.getDate() + i);
-          const dateStr = d.toLocaleDateString("es-ES");
-          subPeriodCounts.push(periodEvents.filter(e => e.date === dateStr && e.actionId === action.id).length);
-        }
-      }
-
-      const actionTotal = subPeriodCounts.reduce((a, b) => a + b, 0);
-
-      if (actionTotal > 0) {
-        const actionAvg = (actionTotal / days).toFixed(2);
-        const actionMin = Math.min(...subPeriodCounts);
-        const actionMax = Math.max(...subPeriodCounts);
-
-        actionsHtml += `
-          <div style="margin-bottom: 1rem; padding: 1rem; background: var(--bg); border-radius: 12px; border: 1px solid rgba(79, 70, 229, 0.1);">
-            <h4 style="text-transform: capitalize; color: var(--primary); margin-bottom: 0.8rem; font-size: 0.95rem; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 0.3rem;">${action.text}</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
-              <div><span style="color: #64748b;">${t.totalActions}:</span> <strong>${actionTotal}</strong></div>
-              <div><span style="color: #64748b;">${avgLabel}:</span> <strong>${actionAvg}</strong></div>
-              <div><span style="color: #64748b;">${t.min}:</span> <strong>${actionMin}</strong></div>
-              <div><span style="color: #64748b;">${t.max}:</span> <strong>${actionMax}</strong></div>
-            </div>
-          </div>
-        `;
-      }
-    });
-
-    reportBody.innerHTML = `
-      <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; font-weight: 500;">${periodLabel}</p>
-      <div style="margin-bottom: 0.5rem;">
-        ${actionsHtml || `<p style="font-style: italic; color: #94a3b8; font-size: 0.85rem;">${t.historyEmpty}</p>`}
-      </div>
-    `;
-
-    if (!reportDialog.open) reportDialog.showModal();
   },
 
   animateClick(actionId) {

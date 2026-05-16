@@ -4,7 +4,6 @@ const Calendar = {
   currentHistoryDate: null,
   selectedWeeklyActionId: null,
   selectedMonthlyActionId: null,
-  currentYear: new Date().getFullYear(),
 
   getWeekDays() {
     const lang = DB.getLang();
