@@ -254,7 +254,14 @@ const UI = {
     const newView = document.getElementById(`view-${viewName}`);
     const content = document.getElementById("content");
 
-    if (!newView || oldView === newView) return;
+    if (!newView) return;
+
+    // Update active state in mobile menu (even if it's the same view)
+    document.querySelectorAll(".mobile-nav button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.view === viewName);
+    });
+
+    if (oldView === newView) return;
 
     if (oldView && content) {
       const currentViewName = oldView.id.replace("view-", "");
@@ -289,11 +296,6 @@ const UI = {
     if (viewName === "weekly") Calendar.renderWeekly();
     if (viewName === "monthly") Calendar.renderMonthly();
     if (viewName === "history") Calendar.renderHistory();
-
-    // Update active state in side and mobile menu
-    document.querySelectorAll(".menu-links button, .mobile-nav button").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.view === viewName);
-    });
   },
 
   showReport(type) {

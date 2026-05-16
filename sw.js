@@ -1,18 +1,18 @@
-const CACHE_NAME = 'action-counter-v2';
+const CACHE_NAME = "action-counter-v3";
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './favicon.svg',
-  './css/style.css',
-  './js/utils.js',
-  './js/storage.js',
-  './js/ui.js',
-  './js/calendar.js',
-  './js/main.js'
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./favicon.svg",
+  "./css/style.css",
+  "./js/utils.js",
+  "./js/storage.js",
+  "./js/ui.js",
+  "./js/calendar.js",
+  "./js/main.js",
 ];
 
-self.addEventListener('install', (e) => {
+self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
       for (const asset of ASSETS) {
@@ -23,17 +23,23 @@ self.addEventListener('install', (e) => {
         }
       }
       return self.skipWaiting();
-    })
+    }),
   );
 });
 
-self.addEventListener('activate', (e) => {
+self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)),
+        ),
+      )
+      .then(() => self.clients.claim()),
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener("fetch", (e) => {
+  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
 });

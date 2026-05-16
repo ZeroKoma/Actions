@@ -21,6 +21,7 @@ const App = {
     UI.renderMain();
     UI.setupEventListeners();
     Calendar.init();
+    UI.showView('main');
   },
 
   registerClick() {
