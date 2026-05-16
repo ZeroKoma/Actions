@@ -30,32 +30,38 @@ const Calendar = {
   },
 
   async getInitialHistoryDate() {
-    const now = new Date();
+    const now = new Date(); // Get current date and time
+    now.setHours(0, 0, 0, 0); // Normalize to midnight for consistent comparison
+
     const events = await DB.getEvents();
     if (events.length === 0) return now;
 
-    const todayStr = now.toLocaleDateString("es-ES");
-    const hasToday = events.some(e => e.date === todayStr);
+    const hasToday = events.some(e => e.date === now.toLocaleDateString("es-ES"));
     
     if (hasToday) return now;
 
-    // If there's no today, we search for the previous day (yesterday)
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return yesterday;
-    // Note: We could search for the last day with events, but the requirement 
-    // asks for the current day and if it doesn't exist, the previous day.
+    // Sort events by ID (timestamp) to find the very last one
+    const lastEvent = [...events].sort((a, b) => b.id - a.id)[0];
+    const [d, m, y] = lastEvent.date.split('/').map(Number);
+    
+    // Create a new Date object for the last event and normalize to midnight
+    const lastEventDate = new Date(y, m - 1, d);
+    lastEventDate.setHours(0, 0, 0, 0);
+    
+    return lastEventDate;
   },
 
   getStartOfWeek(d) {
     const lang = DB.getLang();
     const date = new Date(d);
+    date.setHours(0, 0, 0, 0); // Normalize to midnight for accurate comparisons
     const day = date.getDay();
     const isEn = lang === "en";
     const diff = isEn
       ? date.getDate() - day
       : date.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(date.setDate(diff));
+    date.setDate(diff);
+    return date;
   },
 
   setupListeners() {
@@ -63,7 +69,17 @@ const Calendar = {
       this.currentWeekStart.setDate(this.currentWeekStart.getDate() - 7);
       this.renderWeekly();
     };
+    const weeklyTodayBtn = document.getElementById("weekly-today-btn");
+    if (weeklyTodayBtn) {
+      weeklyTodayBtn.onclick = () => {
+        this.currentWeekStart = this.getStartOfWeek(new Date());
+        this.renderWeekly();
+      };
+    }
     document.getElementById("next-week").onclick = () => {
+      const todayStart = this.getStartOfWeek(new Date());
+      if (this.currentWeekStart >= todayStart) return;
+      
       this.currentWeekStart.setDate(this.currentWeekStart.getDate() + 7);
       this.renderWeekly();
     };
@@ -71,9 +87,44 @@ const Calendar = {
       this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() - 1);
       this.renderMonthly();
     };
+    const monthlyTodayBtn = document.getElementById("monthly-today-btn");
+    if (monthlyTodayBtn) {
+      monthlyTodayBtn.onclick = () => {
+        const now = new Date();
+        this.currentMonthDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        this.renderMonthly();
+      };
+    }
     document.getElementById("next-month").onclick = () => {
+      const now = new Date();
+      const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      if (this.currentMonthDate >= thisMonth) return;
+
       this.currentMonthDate.setMonth(this.currentMonthDate.getMonth() + 1);
       this.renderMonthly();
+    };
+
+    // History navigation
+    const todayBtn = document.getElementById("history-today-btn");
+    if (todayBtn) {
+      todayBtn.onclick = async () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to midnight
+        this.currentHistoryDate = today;
+        await this.renderHistory();
+      };
+    }
+    document.getElementById("prev-history").onclick = () => {
+      this.currentHistoryDate.setDate(this.currentHistoryDate.getDate() - 1);
+      this.renderHistory();
+    };
+    document.getElementById("next-history").onclick = () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (this.currentHistoryDate >= today) return;
+
+      this.currentHistoryDate.setDate(this.currentHistoryDate.getDate() + 1);
+      this.renderHistory();
     };
   },
 
@@ -144,6 +195,21 @@ const Calendar = {
     const start = new Date(this.currentWeekStart);
     const end = new Date(start);
     end.setDate(end.getDate() + 6);
+
+    // Disable next-week button if we are in current week
+    const nextBtn = document.getElementById("next-week");
+    const isCurrentWeek = this.currentWeekStart >= this.getStartOfWeek(new Date());
+    if (nextBtn) {
+      nextBtn.disabled = isCurrentWeek;
+      nextBtn.style.opacity = isCurrentWeek ? "0.3" : "1";
+    }
+
+    // Toggle weekly today button visibility
+    const weeklyTodayBtn = document.getElementById("weekly-today-btn");
+    const todayStart = this.getStartOfWeek(new Date());
+    if (weeklyTodayBtn) {
+      weeklyTodayBtn.style.display = this.currentWeekStart.getTime() === todayStart.getTime() ? "none" : "block";
+    }
 
     const locale = DB.getLang() === "en" ? "en-US" : "es-ES";
     label.textContent = `${start.toLocaleDateString(locale, { day: "numeric", month: "short" })} - ${end.toLocaleDateString(locale, { day: "numeric", month: "short" })}`;
@@ -287,6 +353,21 @@ const Calendar = {
       .toLocaleDateString(locale, { month: "long", year: "numeric" })
       .toUpperCase();
 
+    // Disable next-month button if we are in current month
+    const nextBtn = document.getElementById("next-month");
+    const isCurrentMonth = this.currentMonthDate >= new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    if (nextBtn) {
+      nextBtn.disabled = isCurrentMonth;
+      nextBtn.style.opacity = isCurrentMonth ? "0.3" : "1";
+    }
+
+    // Toggle monthly today button visibility
+    const monthlyTodayBtn = document.getElementById("monthly-today-btn");
+    const thisMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    if (monthlyTodayBtn) {
+      monthlyTodayBtn.style.display = this.currentMonthDate.getTime() === thisMonth.getTime() ? "none" : "block";
+    }
+
     // Add day headers
     this.weekDays.forEach((dayName) => {
       grid.innerHTML += `<div class="calendar-header-cell">${dayName}</div>`;
@@ -351,12 +432,28 @@ const Calendar = {
     const label = document.getElementById("history-date-label");
     const t = this.getLabels();
 
-    const dateStr = this.currentHistoryDate.toLocaleDateString("es-ES");
-    const dayEvents = events.filter(e => e.date === dateStr);
-    
-    // Format date label
-    const isToday = dateStr === new Date().toLocaleDateString("es-ES");
+    // Normalize currentHistoryDate to midnight for comparison
+    const currentHistoryDateMidnight = new Date(this.currentHistoryDate);
+    currentHistoryDateMidnight.setHours(0, 0, 0, 0);
+
+    const todayMidnight = new Date();
+    todayMidnight.setHours(0, 0, 0, 0);
+
+    const isToday = currentHistoryDateMidnight.getTime() === todayMidnight.getTime();
     label.textContent = isToday ? t.today : this.currentHistoryDate.toLocaleDateString(DB.getLang() === "en" ? "en-US" : "es-ES", { day: 'numeric', month: 'short', year: 'numeric' });
+
+    // Disable next-history button if we are at today
+    const nextBtn = document.getElementById("next-history");
+    if (nextBtn) {
+      nextBtn.disabled = isToday;
+      nextBtn.style.opacity = isToday ? "0.3" : "1";
+    }
+
+    const dateStr = currentHistoryDateMidnight.toLocaleDateString("es-ES"); // Use normalized date for filtering
+    const dayEvents = events.filter(e => e.date === dateStr);
+
+    const todayBtn = document.getElementById("history-today-btn");
+    if (todayBtn) todayBtn.style.display = isToday ? "none" : "block";
 
     if (dayEvents.length === 0) {
       container.innerHTML = `<div class="empty-history">${t.historyEmpty}</div>`;

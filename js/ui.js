@@ -182,9 +182,7 @@ const UI = {
     editCancel.onclick = () => editDialog.close();
     editDelete.onclick = () => {
       confirmAccept.onclick = async () => {
-        let actions = await DB.getActions();
-        actions = actions.filter(a => a.id !== this.currentEditingId);
-        await DB.saveActions(actions);
+        await DB.deleteAction(this.currentEditingId);
         await this.renderMain();
         confirmDialog.close();
         editDialog.close();
@@ -287,6 +285,9 @@ const UI = {
     document.getElementById("label-edit-goal").textContent = t.editGoal;
     document.getElementById("edit-action-cancel").textContent = t.cancel;
     document.getElementById("edit-action-save").textContent = t.accept;
+    document.getElementById("history-today-btn").textContent = t.today;
+    document.getElementById("weekly-today-btn").textContent = t.today;
+    document.getElementById("monthly-today-btn").textContent = t.today;
   },
 
   applyDarkMode() {

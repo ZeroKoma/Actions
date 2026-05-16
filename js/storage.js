@@ -95,6 +95,30 @@ const DB = {
     });
   },
 
+  async deleteAction(actionId) {
+    const db = await this.init();
+    const tx = db.transaction(["actions", "events"], "readwrite");
+    
+    // Delete the action
+    tx.objectStore("actions").delete(actionId);
+    
+    // Delete all associated events (cleanup)
+    const eventStore = tx.objectStore("events");
+    const index = eventStore.index("actionId");
+    const request = index.openCursor(IDBKeyRange.only(actionId));
+    request.onsuccess = (e) => {
+      const cursor = e.target.result;
+      if (cursor) {
+        cursor.delete();
+        cursor.continue();
+      }
+    };
+    return new Promise((res, rej) => {
+      tx.oncomplete = res;
+      tx.onerror = (e) => rej(e.target.error);
+    });
+  },
+
   // Settings remain in localStorage as they are small and needed synchronously at startup
   getLang: () => localStorage.getItem("app_lang") || "es",
   setLang: (lang) => localStorage.setItem("app_lang", lang),
