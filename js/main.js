@@ -1,26 +1,47 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  await DB.migrateFromLocalStorage();
-  let actions = await DB.getActions();
-  const events = await DB.getEvents();
-  
-  if (actions.length === 0 && events.length === 0) {
-    // If we have orphaned events, use the ID of the first one found
-    const firstEvent = events[0];
-    const recoveryId = firstEvent ? firstEvent.actionId : Date.now();
-    
-    actions = [{ id: recoveryId, text: "Acción" }];
-    await DB.saveActions(actions);
+  try {
+    await App.init();
+  } catch (error) {
+    console.error("Critical error during app startup:", error);
   }
-
-  App.init();
 });
 
 const App = {
+  /**
+   * Inicializa la aplicación: migración, carga de datos, UI y componentes.
+   */
   async init() {
+    // 1. Preparación de datos y compatibilidad
+    await DB.migrateFromLocalStorage();
+    await this._ensureInitialData();
+
+    // 2. Inicialización de la interfaz
     await UI.renderMain();
     UI.setupEventListeners();
+    
+    // 3. Carga de módulos secundarios
     await Calendar.init();
+    
+    // 4. Mostrar vista inicial
     UI.showView('main');
+  },
+
+  /**
+   * Lógica de recuperación para garantizar que siempre haya al menos una acción 
+   * si existen eventos huérfanos o la base de datos está vacía.
+   */
+  async _ensureInitialData() {
+    const actions = await DB.getActions();
+    const events = await DB.getEvents();
+
+    if (actions.length === 0) {
+      // Si no hay acciones pero hay eventos, recuperamos el ID del primero para no perder la vinculación
+      const firstEvent = events[0];
+      const recoveryId = firstEvent ? firstEvent.actionId : Date.now();
+      
+      const defaultActions = [{ id: recoveryId, text: "Acción" }];
+      await DB.saveActions(defaultActions);
+    }
   },
 
   async registerClick(actionId) {
