@@ -237,10 +237,13 @@ const Calendar = {
         currentDay.getMonth() === today.getMonth() &&
         currentDay.getFullYear() === today.getFullYear();
 
-      const isCompleted = goal > 0 && count >= goal;
+      const dayOfWeek = currentDay.getDay();
+      const isTargetDay = !selectedAction || !selectedAction.activeDays || selectedAction.activeDays.length === 0 || selectedAction.activeDays.includes(dayOfWeek);
+      const hasTarget = selectedAction && goal > 0 && isTargetDay;
+      const isCompleted = isTargetDay && goal > 0 && count >= goal;
 
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${currentDay.getDate()}</div>
         <div class="count">${count}</div>
@@ -404,10 +407,13 @@ const Calendar = {
         month === today.getMonth() &&
         year === today.getFullYear();
 
-      const isCompleted = goal > 0 && count >= goal;
+      const dayOfWeek = new Date(year, month, d).getDay();
+      const isTargetDay = !selectedAction || !selectedAction.activeDays || selectedAction.activeDays.length === 0 || selectedAction.activeDays.includes(dayOfWeek);
+      const hasTarget = selectedAction && goal > 0 && isTargetDay;
+      const isCompleted = isTargetDay && goal > 0 && count >= goal;
 
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${d}</div>
         <div class="count">${count}</div>

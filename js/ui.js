@@ -32,7 +32,13 @@ const UI = {
       manualTitle: "Registro Manual",
       labelAction: "Acción",
       labelDate: "Fecha",
-      labelTime: "Hora"
+      labelTime: "Hora",
+      labelActiveDays: "Días objetivo",
+      daysShort: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"],
+      allDays: "Todos los días",
+      selectAll: "Todos",
+      selectWeekdays: "Lun-Vie",
+      selectWeekends: "S-D"
     },
     en: {
       appTitle: "Home",
@@ -66,7 +72,13 @@ const UI = {
       manualTitle: "Manual Entry",
       labelAction: "Action",
       labelDate: "Date",
-      labelTime: "Time"
+      labelTime: "Time",
+      labelActiveDays: "Target days",
+      daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      allDays: "Every day",
+      selectAll: "All",
+      selectWeekdays: "Mon-Fri",
+      selectWeekends: "Wknd"
     }
   },
 
@@ -88,7 +100,24 @@ const UI = {
       const todayEvents = events.filter(e => e.actionId === action.id && e.date === today);
       const count = todayEvents.length;
       const goal = action.goal || 0;
-      const isCompleted = goal > 0 && count >= goal;
+      const dayOfWeek = new Date().getDay();
+      const activeDays = action.activeDays || [];
+      const isTargetDay = activeDays.length === 0 || activeDays.includes(dayOfWeek);
+      const isCompleted = isTargetDay && goal > 0 && count >= goal;
+
+      const isAllDays = activeDays.length === 0 || activeDays.length === 7;
+      let daysText = "";
+      if (isAllDays) {
+        daysText = isTargetDay ? `<span class="is-today">${t.allDays}</span>` : t.allDays;
+      } else {
+        daysText = [...activeDays]
+          .sort((a, b) => {
+            const order = DB.getLang() === 'es' ? [1, 2, 3, 4, 5, 6, 0] : [0, 1, 2, 3, 4, 5, 6];
+            return order.indexOf(a) - order.indexOf(b);
+          })
+          .map(idx => idx === dayOfWeek ? `<span class="is-today">${t.daysShort[idx]}</span>` : t.daysShort[idx])
+          .join(", ");
+      }
       
       const wrapper = document.createElement("div");
       wrapper.className = "action-wrapper";
@@ -99,6 +128,7 @@ const UI = {
           <div class="card-left">
             <h2 class="counter-text">${action.text}</h2>
             ${goal > 0 ? `<span class="goal-text">${count} / ${goal}</span>` : ''}
+            <span class="active-days-info">${daysText}</span>
             ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
           </div>
           <div class="counter-badge">
@@ -144,10 +174,11 @@ const UI = {
 
     if (langSwitch) {
       langSwitch.checked = DB.getLang() === "en";
-      langSwitch.onchange = (e) => {
+      langSwitch.onchange = async (e) => {
         DB.setLang(e.target.checked ? "en" : "es");
         this.updateLanguageStrings();
-        Calendar.init(); // Reset calendar to update days
+        await Calendar.init(); // Reset calendar to update days
+        await this.renderMain(); // Re-render logic for cards with new language
       };
     }
 
@@ -202,6 +233,12 @@ const UI = {
       const text = editInput.value.trim();
       // Ensure the goal is at least 0
       const goal = Math.max(0, parseInt(editGoalInput.value) || 0);
+      
+      const activeDays = [];
+      document.querySelectorAll(".day-chip.active").forEach(chip => {
+        activeDays.push(parseInt(chip.dataset.day));
+      });
+
       if (text) {
         let actions = await DB.getActions();
         if (this.currentEditingId) {
@@ -209,9 +246,10 @@ const UI = {
           if (action) {
             action.text = text;
             action.goal = goal;
+            action.activeDays = activeDays;
           }
         } else {
-          actions.push({ id: Date.now(), text, goal });
+          actions.push({ id: Date.now(), text, goal, activeDays });
         }
         await DB.saveActions(actions);
         await this.renderMain();
@@ -359,17 +397,65 @@ const UI = {
     const deleteBtn = document.getElementById("edit-action-delete");
     const title = document.getElementById("edit-dialog-title");
     const t = this.translations[DB.getLang()];
+    const lang = DB.getLang();
+
+    // Create or clear day picker container
+    let dayPickerContainer = document.getElementById("day-picker-container");
+    if (!dayPickerContainer) {
+      dayPickerContainer = document.createElement("div");
+      dayPickerContainer.id = "day-picker-container";
+      // Buscamos el contenedor del input de meta para poner el selector debajo
+      const anchor = goalInput.closest(".settings-item") || goalInput.parentElement;
+      if (anchor) anchor.after(dayPickerContainer);
+    }
+    dayPickerContainer.innerHTML = `
+      <label class="settings-label" style="display:block; margin-top:12px;">${t.labelActiveDays}</label>
+      <div class="quick-select-days" style="display:flex; gap:8px; margin-top:8px; margin-bottom:12px;">
+        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 6px; flex:1;" id="btn-select-all">${t.selectAll}</button>
+        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 6px; flex:1;" id="btn-select-weekdays">${t.selectWeekdays}</button>
+        <button type="button" class="btn-secondary" style="font-size: 0.7rem; padding: 6px; flex:1;" id="btn-select-weekends">${t.selectWeekends}</button>
+      </div>
+      <div class="day-picker" style="display:flex; gap:5px; margin-top:8px; justify-content: space-between;"></div>
+    `;
+    const picker = dayPickerContainer.querySelector(".day-picker");
+
+    const dayLabels = t.daysShort;
+    // Order: Sun=0, Mon=1...
+    const dayOrder = lang === 'es' ? [1, 2, 3, 4, 5, 6, 0] : [0, 1, 2, 3, 4, 5, 6];
+
+    const actions = await DB.getActions();
+    const action = actionId ? actions.find(a => a.id === actionId) : null;
+    
+    input.value = action ? action.text : "";
+    goalInput.value = action ? (action.goal || 0) : 0;
+
+    dayOrder.forEach(dayIdx => {
+      const isActive = action && action.activeDays ? action.activeDays.includes(dayIdx) : false;
+      const chip = document.createElement("button");
+      chip.type = "button"; // Importante para que no envíe el formulario
+      chip.className = `day-chip ${isActive ? 'active' : ''}`;
+      chip.dataset.day = dayIdx;
+      chip.textContent = dayLabels[dayIdx];
+      chip.onclick = () => chip.classList.toggle("active");
+      picker.appendChild(chip);
+    });
+
+    // Lógica de selección rápida
+    const setAllChips = (indices) => {
+      picker.querySelectorAll(".day-chip").forEach(chip => {
+        const dayIdx = parseInt(chip.dataset.day);
+        chip.classList.toggle("active", indices.includes(dayIdx));
+      });
+    };
+
+    dayPickerContainer.querySelector("#btn-select-all").onclick = () => setAllChips([0, 1, 2, 3, 4, 5, 6]);
+    dayPickerContainer.querySelector("#btn-select-weekdays").onclick = () => setAllChips([1, 2, 3, 4, 5]);
+    dayPickerContainer.querySelector("#btn-select-weekends").onclick = () => setAllChips([0, 6]);
 
     if (actionId) {
-      const actions = await DB.getActions();
-      const action = actions.find(a => a.id === actionId);
-      input.value = action ? action.text : "";
-      goalInput.value = action ? (action.goal || 0) : 0;
       title.textContent = t.editAction;
       deleteBtn.classList.remove("hidden");
     } else {
-      input.value = "";
-      goalInput.value = 0;
       title.textContent = t.addAction;
       deleteBtn.classList.add("hidden");
     }
@@ -453,6 +539,7 @@ const UI = {
     document.getElementById("app-title").textContent = t[viewName] || t.appTitle;
 
     // Update calendar data when switching views
+    if (viewName === "main") this.renderMain();
     if (viewName === "weekly") Calendar.renderWeekly();
     if (viewName === "monthly") Calendar.renderMonthly();
     if (viewName === "history") Calendar.renderHistory();

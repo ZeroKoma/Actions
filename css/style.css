@@ -22,6 +22,8 @@ body.dark-mode .nav-controls button:active { background-color: #1e293b; }
 body.dark-mode .day-cell { background-color: var(--card) !important; color: var(--text); border-color: #334155; }
 body.dark-mode .day-cell.current-day { background-color: rgba(129, 140, 248, 0.15) !important; }
 body.dark-mode .day-cell.completed { border-color: #4ade80 !important; box-shadow: inset 0 0 0 1px #4ade80; }
+body.dark-mode .day-cell.has-target:not(.completed) { border-color: var(--primary) !important; background-color: rgba(129, 140, 248, 0.1); }
+body.dark-mode .active-days-info { color: var(--text-muted); }
 body.dark-mode .day-cell .count { background-color: #334155; color: var(--text-muted); border: 1px solid rgba(129, 140, 248, 0.1); }
 body.dark-mode .day-cell.has-activity .count { background-color: var(--primary); color: #0f172a; border: none; font-weight: 800; }
 body.dark-mode .calendar-header-cell { background-color: #1e293b; border-color: #334155; }
@@ -41,6 +43,8 @@ body.dark-mode input::-webkit-calendar-picker-indicator {
 }
 body.dark-mode .btn-goal-adjust { background: #1e293b; border-color: #334155; color: var(--text); }
 body.dark-mode .btn-goal-adjust:active { background: #0f172a; }
+body.dark-mode .day-chip { border-color: #334155; color: var(--text); }
+body.dark-mode .day-chip.active { background: var(--primary); color: #0f172a; border-color: var(--primary); }
 body.dark-mode .btn-icon-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 body.dark-mode .btn-danger { background: #1e293b; border-color: #334155; }
 body.dark-mode .history-action-group { border-color: #334155; }
@@ -306,6 +310,18 @@ main#content {
   font-weight: 600;
 }
 
+.active-days-info {
+  font-size: 0.7rem;
+  color: #64748b;
+  font-weight: 500;
+  display: block;
+}
+
+.active-days-info .is-today {
+  color: var(--primary);
+  font-weight: 700;
+}
+
 .completed-label {
   font-size: 0.7rem;
   font-weight: 800;
@@ -494,6 +510,39 @@ main#content {
   margin-bottom: 4px;
   text-align: right;
   width: 100%;
+}
+
+/* Selector de días en el diálogo de edición */
+.day-picker {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.day-chip {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day-chip.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Indicador de objetivo en el calendario */
+.day-cell.has-target:not(.completed) {
+  border: 1px dashed var(--primary) !important;
+  background-color: rgba(79, 70, 229, 0.05);
 }
 
 .action-label {
