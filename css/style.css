@@ -116,10 +116,6 @@ body {
 }
 
 .btn-icon {
-  /* Existing styles for btn-icon already define width/height */
-}
-
-.btn-icon {
   background: none;
   border: none;
   color: white;

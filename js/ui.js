@@ -94,66 +94,21 @@ const UI = {
     const actions = await DB.getActions();
     const events = await DB.getEvents();
     const today = Utils.getTodayKey();
+    const dayOfWeek = new Date().getDay();
     const container = document.getElementById("actions-container");
     if (!container) return;
     
     container.innerHTML = "";
-    const t = this.translations[DB.getLang()];
+    const lang = DB.getLang();
+    const t = this.translations[lang];
 
     actions.forEach(action => {
       const todayEvents = events.filter(e => e.actionId === action.id && e.date === today);
       const count = todayEvents.length;
-      const goal = action.goal || 0;
-      const dayOfWeek = new Date().getDay();
-      const activeDays = action.activeDays || [];
-      const isTargetDay = activeDays.length === 0 || activeDays.includes(dayOfWeek);
-      const isCompleted = isTargetDay && goal > 0 && count >= goal;
+      const isCompleted = this._checkCompletion(action, count, dayOfWeek);
+      const daysText = this._getDaysText(action, dayOfWeek, t, lang);
 
-      const isAllDays = activeDays.length === 0 || activeDays.length === 7;
-      let daysText = "";
-      if (isAllDays) {
-        daysText = isTargetDay ? `<span class="is-today">${t.allDays}</span>` : t.allDays;
-      } else {
-        daysText = [...activeDays]
-          .sort((a, b) => {
-            const order = DB.getLang() === 'es' ? [1, 2, 3, 4, 5, 6, 0] : [0, 1, 2, 3, 4, 5, 6];
-            return order.indexOf(a) - order.indexOf(b);
-          })
-          .map(idx => idx === dayOfWeek ? `<span class="is-today">${t.daysShort[idx]}</span>` : t.daysShort[idx])
-          .join(", ");
-      }
-      
-      const wrapper = document.createElement("div");
-      wrapper.className = "action-wrapper";
-      wrapper.dataset.id = action.id;
-      
-      wrapper.innerHTML = `
-        <div class="counter-card ${isCompleted ? 'completed' : ''}">
-          <div class="card-row">
-            <h2 class="counter-text">${action.text}</h2>
-            <div class="counter-badge">
-              <span>${count}</span>
-            </div>
-          </div>
-          <div class="card-row">
-            <span class="active-days-info">${daysText}</span>
-          </div>
-          <div class="card-row">
-            <div class="goal-info">
-              ${goal > 0 ? `<span class="goal-text">${t.goalPrefix}${count} / ${goal}</span>` : ''}
-              ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
-            </div>
-            <div class="card-actions">
-              <button class="btn-undo ${count === 0 ? 'hidden' : ''}" title="${this.translations[DB.getLang()].undo}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
-              </button>
-              <button class="btn-edit-action" aria-label="Editar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
+      const wrapper = this._createActionElement(action, count, isCompleted, daysText, t);
 
       const card = wrapper.querySelector(".counter-card");
       card.onclick = () => App.registerClick(action.id);
@@ -172,9 +127,80 @@ const UI = {
     });
   },
 
+  /**
+   * Helper para verificar si se ha cumplido la meta del día.
+   */
+  _checkCompletion(action, count, dayOfWeek) {
+    const goal = action.goal || 0;
+    const activeDays = action.activeDays || [];
+    const isTargetDay = activeDays.length === 0 || activeDays.includes(dayOfWeek);
+    return isTargetDay && goal > 0 && count >= goal;
+  },
+
+  /**
+   * Genera el texto descriptivo de los días activos.
+   */
+  _getDaysText(action, dayOfWeek, t, lang) {
+    const activeDays = action.activeDays || [];
+    const isAllDays = activeDays.length === 0 || activeDays.length === 7;
+    
+    if (isAllDays) {
+      const isTargetToday = activeDays.length === 0 || activeDays.includes(dayOfWeek);
+      return isTargetToday ? `<span class="is-today">${t.allDays}</span>` : t.allDays;
+    }
+
+    return [...activeDays]
+      .sort((a, b) => {
+        const order = lang === 'es' ? [1, 2, 3, 4, 5, 6, 0] : [0, 1, 2, 3, 4, 5, 6];
+        return order.indexOf(a) - order.indexOf(b);
+      })
+      .map(idx => idx === dayOfWeek ? `<span class="is-today">${t.daysShort[idx]}</span>` : t.daysShort[idx])
+      .join(", ");
+  },
+
+  /**
+   * Crea el elemento DOM para una acción.
+   */
+  _createActionElement(action, count, isCompleted, daysText, t) {
+    const goal = action.goal || 0;
+    const wrapper = document.createElement("div");
+    wrapper.className = "action-wrapper";
+    wrapper.dataset.id = action.id;
+    
+    wrapper.innerHTML = `
+      <div class="counter-card ${isCompleted ? 'completed' : ''}">
+        <div class="card-row">
+          <h2 class="counter-text">${action.text}</h2>
+          <div class="counter-badge">
+            <span>${count}</span>
+          </div>
+        </div>
+        <div class="card-row">
+          <span class="active-days-info">${daysText}</span>
+        </div>
+        <div class="card-row">
+          <div class="goal-info">
+            ${goal > 0 ? `<span class="goal-text">${t.goalPrefix}${count} / ${goal}</span>` : ''}
+            ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="btn-undo ${count === 0 ? 'hidden' : ''}" title="${t.undo}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+            </button>
+            <button class="btn-edit-action" aria-label="Editar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    return wrapper;
+  },
+
   setupEventListeners() {
     const addActionBtn = document.getElementById("add-action-btn");
     if (addActionBtn) addActionBtn.onclick = () => this.showEditDialog();
+    this._initDialogHandlers();
 
     const confirmDialog = document.getElementById("confirm-dialog");
     const confirmAccept = document.getElementById("confirm-accept");
@@ -211,24 +237,35 @@ const UI = {
 
     confirmCancel.onclick = () => confirmDialog.close();
 
-    const editSave = document.getElementById("edit-action-save");
-    const editCancel = document.getElementById("edit-action-cancel");
-    const editDialog = document.getElementById("edit-action-dialog");
-    const editInput = document.getElementById("edit-action-input");
-    const editGoalInput = document.getElementById("edit-action-goal");
-    const editDelete = document.getElementById("edit-action-delete");
+    // Navigation gestures
+    this._setupTouchGestures();
+  },
 
+  /**
+   * Centraliza los manejadores de los botones de acción de los diálogos.
+   */
+  _initDialogHandlers() {
+    const editSave = document.getElementById("edit-action-save");
+    const editDialog = document.getElementById("edit-action-dialog");
+    const editDelete = document.getElementById("edit-action-delete");
+    const confirmDialog = document.getElementById("confirm-dialog");
+    const confirmAccept = document.getElementById("confirm-accept");
+
+    // Handlers para el diálogo de edición de acciones
     document.getElementById("goal-minus").onclick = () => {
+      const editGoalInput = document.getElementById("edit-action-goal");
       const val = parseInt(editGoalInput.value) || 0;
       if (val > 0) editGoalInput.value = val - 1;
     };
 
     document.getElementById("goal-plus").onclick = () => {
+      const editGoalInput = document.getElementById("edit-action-goal");
       const val = parseInt(editGoalInput.value) || 0;
       if (val < 99) editGoalInput.value = val + 1;
     };
 
-    editCancel.onclick = () => editDialog.close();
+    document.getElementById("edit-action-cancel").onclick = () => editDialog.close();
+
     editDelete.onclick = () => {
       confirmAccept.onclick = async () => {
         await DB.deleteAction(this.currentEditingId);
@@ -240,8 +277,8 @@ const UI = {
     };
 
     editSave.onclick = async () => {
-      const text = editInput.value.trim();
-      // Ensure the goal is at least 0
+      const text = document.getElementById("edit-action-input").value.trim();
+      const editGoalInput = document.getElementById("edit-action-goal");
       const goal = Math.max(0, parseInt(editGoalInput.value) || 0);
       
       const activeDays = [];
@@ -273,52 +310,13 @@ const UI = {
     if (manualBtn) manualBtn.onclick = () => this.showManualEntryDialog();
     
     document.getElementById("manual-cancel").onclick = () => manualDialog.close();
-    document.getElementById("manual-save").onclick = async () => {
-      const actionId = Number(document.getElementById("manual-action-select").value);
-      const dateVal = document.getElementById("manual-date-input").value;
-      const timeVal = document.getElementById("manual-time-input").value;
+    document.getElementById("manual-save").onclick = () => this._handleManualSave();
+  },
 
-      if (actionId && dateVal && timeVal) {
-        const actions = await DB.getActions();
-        const action = actions.find(a => a.id === actionId);
-        
-        // Use a neutral hour to avoid timezone shifts during string conversion
-        const tempDate = new Date(`${dateVal}T12:00:00`);
-        const formattedDate = tempDate.toLocaleDateString("es-ES");
-        const fullIso = new Date(`${dateVal}T${timeVal}`).toISOString();
-
-        const event = {
-          id: Date.now(),
-          actionId: action.id,
-          actionText: action.text,
-          full: fullIso,
-          date: formattedDate,
-          time: timeVal
-        };
-
-        await DB.addEvent(event);
-        
-        // Sync calendar filters to the action we just updated
-        Calendar.selectedWeeklyActionId = action.id;
-        Calendar.selectedMonthlyActionId = action.id;
-
-        await this.renderMain();
-        await Calendar.renderAll(); // Refresh without resetting date context
-        
-        // Show success feedback
-        const lang = DB.getLang();
-        const msg = lang === "en" ? "Entry saved!" : "¡Registro guardado!";
-        const toast = document.createElement("div");
-        toast.className = "update-toast";
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
-
-        manualDialog.close();
-      }
-    };
-
-    // Touch gestures for horizontal navigation between screens
+  /**
+   * Configura los gestos táctiles para la navegación horizontal.
+   */
+  _setupTouchGestures() {
     let touchStartX = 0;
     let touchStartY = 0;
 
@@ -333,7 +331,6 @@ const UI = {
       const dx = touchEndX - touchStartX;
       const dy = touchEndY - touchStartY;
 
-      // Only navigate if horizontal displacement is predominant and has enough travel (70px)
       if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 70) {
         const viewsOrder = ["main", "history", "weekly", "monthly", "settings"];
         const activeView = document.querySelector(".view:not(.hidden)");
@@ -343,10 +340,8 @@ const UI = {
         const currentIndex = viewsOrder.indexOf(currentViewName);
 
         if (dx < 0 && currentIndex < viewsOrder.length - 1) {
-          // Swipe left (finger to the left) -> Next menu
           this.showView(viewsOrder[currentIndex + 1]);
         } else if (dx > 0 && currentIndex > 0) {
-          // Swipe right (finger to the right) -> Previous menu
           this.showView(viewsOrder[currentIndex - 1]);
         }
       }
@@ -406,18 +401,37 @@ const UI = {
     const goalInput = document.getElementById("edit-action-goal");
     const deleteBtn = document.getElementById("edit-action-delete");
     const title = document.getElementById("edit-dialog-title");
-    const t = this.translations[DB.getLang()];
     const lang = DB.getLang();
+    const t = this.translations[lang];
 
-    // Create or clear day picker container
+    const actions = await DB.getActions();
+    const action = actionId ? actions.find(a => a.id === actionId) : null;
+    
+    input.value = action ? action.text : "";
+    goalInput.value = action ? (action.goal || 0) : 0;
+
+    this._renderDayPicker(action, t, lang);
+
+    if (actionId) {
+      title.textContent = t.editAction;
+      deleteBtn.classList.remove("hidden");
+    } else {
+      title.textContent = t.addAction;
+      deleteBtn.classList.add("hidden");
+    }
+    dialog.showModal();
+  },
+
+  _renderDayPicker(action, t, lang) {
     let dayPickerContainer = document.getElementById("day-picker-container");
     if (!dayPickerContainer) {
       dayPickerContainer = document.createElement("div");
       dayPickerContainer.id = "day-picker-container";
-      // Buscamos el contenedor del input de meta para poner el selector debajo
+      const goalInput = document.getElementById("edit-action-goal");
       const anchor = goalInput.closest(".settings-item") || goalInput.parentElement;
       if (anchor) anchor.after(dayPickerContainer);
     }
+
     dayPickerContainer.innerHTML = `
       <label class="settings-label" style="display:block; margin-top:12px;">${t.labelActiveDays}</label>
       <div class="quick-select-days" style="display:flex; gap:8px; margin-top:8px; margin-bottom:12px;">
@@ -427,17 +441,9 @@ const UI = {
       </div>
       <div class="day-picker" style="display:flex; gap:5px; margin-top:8px; justify-content: space-between;"></div>
     `;
+
     const picker = dayPickerContainer.querySelector(".day-picker");
-
-    const dayLabels = t.daysShort;
-    // Order: Sun=0, Mon=1...
     const dayOrder = lang === 'es' ? [1, 2, 3, 4, 5, 6, 0] : [0, 1, 2, 3, 4, 5, 6];
-
-    const actions = await DB.getActions();
-    const action = actionId ? actions.find(a => a.id === actionId) : null;
-    
-    input.value = action ? action.text : "";
-    goalInput.value = action ? (action.goal || 0) : 0;
 
     dayOrder.forEach(dayIdx => {
       const isActive = action && action.activeDays ? action.activeDays.includes(dayIdx) : false;
@@ -445,7 +451,7 @@ const UI = {
       chip.type = "button"; // Importante para que no envíe el formulario
       chip.className = `day-chip ${isActive ? 'active' : ''}`;
       chip.dataset.day = dayIdx;
-      chip.textContent = dayLabels[dayIdx];
+      chip.textContent = t.daysShort[dayIdx];
       chip.onclick = () => chip.classList.toggle("active");
       picker.appendChild(chip);
     });
@@ -461,15 +467,6 @@ const UI = {
     dayPickerContainer.querySelector("#btn-select-all").onclick = () => setAllChips([0, 1, 2, 3, 4, 5, 6]);
     dayPickerContainer.querySelector("#btn-select-weekdays").onclick = () => setAllChips([1, 2, 3, 4, 5]);
     dayPickerContainer.querySelector("#btn-select-weekends").onclick = () => setAllChips([0, 6]);
-
-    if (actionId) {
-      title.textContent = t.editAction;
-      deleteBtn.classList.remove("hidden");
-    } else {
-      title.textContent = t.addAction;
-      deleteBtn.classList.add("hidden");
-    }
-    dialog.showModal();
   },
 
   async showManualEntryDialog(prefilledDate = null) {
