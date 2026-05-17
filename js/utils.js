@@ -1,7 +1,7 @@
 const Utils = {
-  VERSION: "4.8.0",
+  VERSION: "4.8.1",
 
-  // Locale interno para claves de BD y formateo consistente. 
+  // Locale interno para claves de BD y formateo consistente.
   // No se debe cambiar para no romper la compatibilidad con datos existentes.
   _INTERNAL_LOCALE: "es-ES",
 
@@ -15,7 +15,7 @@ const Utils = {
 
   /**
    * Formatea una fecha usando el locale interno.
-   * @param {Date} date 
+   * @param {Date} date
    * @returns {string}
    */
   formatDate(date) {
@@ -24,7 +24,7 @@ const Utils = {
 
   /**
    * Normaliza una fecha a medianoche (00:00:00) para comparaciones precisas.
-   * @param {Date|number|string} date 
+   * @param {Date|number|string} date
    * @returns {Date}
    */
   normalizeDate(date) {
