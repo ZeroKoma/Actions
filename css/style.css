@@ -197,6 +197,9 @@ main#content {
   flex-direction: column;
   gap: 8px;
   border: 1px solid var(--border);
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
