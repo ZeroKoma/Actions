@@ -29,113 +29,94 @@ const DB = {
     return this._initPromise;
   },
 
-  async saveActions(actions) {
-    const db = await this.init();
-    const tx = db.transaction("actions", "readwrite");
-    const store = tx.objectStore("actions");
-    store.clear();
-    for (const action of actions) {
-      const req = store.add(action);
-      req.onerror = (e) => console.error("Error saving action:", e.target.error);
-    }
-    return new Promise((res, rej) => {
-      tx.oncomplete = res;
-      tx.onerror = (e) => rej(e.target.error);
-    });
-  },
-
-  async getActions() {
+  /**
+   * Helper privado para centralizar la gestión de transacciones.
+   * @param {string|string[]} stores Nombre o nombres de los almacenes.
+   * @param {string} mode "readonly" o "readwrite".
+   * @param {function} callback Operación a realizar.
+   */
+  async _withTransaction(stores, mode, callback) {
     const db = await this.init();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction("actions", "readonly");
-      const request = tx.objectStore("actions").getAll();
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = (e) => reject(e.target.error);
+      const tx = db.transaction(stores, mode);
+      const result = callback(tx);
+
+      if (result instanceof IDBRequest) {
+        result.onsuccess = () => resolve(result.result ?? (mode === "readonly" ? [] : undefined));
+        result.onerror = (e) => reject(e.target.error);
+      } else {
+        tx.oncomplete = () => resolve(result);
+      }
+      tx.onerror = (e) => reject(e.target.error);
     });
   },
 
-  async addEvent(event) {
-    const db = await this.init();
-    const tx = db.transaction("events", "readwrite");
-    const req = tx.objectStore("events").add(event);
-    req.onerror = (e) => console.error("Error adding event:", e.target.error);
-    return new Promise((res, rej) => {
-      tx.oncomplete = res;
-      tx.onerror = (e) => rej(e.target.error);
+  saveActions(actions) {
+    return this._withTransaction("actions", "readwrite", (tx) => {
+      const store = tx.objectStore("actions");
+      store.clear();
+      actions.forEach(action => store.add(action));
     });
   },
 
-  async getEvents() {
-    const db = await this.init();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction("events", "readonly");
-      const request = tx.objectStore("events").getAll();
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = (e) => reject(e.target.error);
+  getActions() {
+    return this._withTransaction("actions", "readonly", (tx) => 
+      tx.objectStore("actions").getAll()
+    );
+  },
+
+  addEvent(event) {
+    return this._withTransaction("events", "readwrite", (tx) => 
+      tx.objectStore("events").add(event)
+    );
+  },
+
+  getEvents() {
+    return this._withTransaction("events", "readonly", (tx) => 
+      tx.objectStore("events").getAll()
+    );
+  },
+
+  updateEvent(event) {
+    return this._withTransaction("events", "readwrite", (tx) => 
+      tx.objectStore("events").put(event)
+    );
+  },
+
+  deleteEvent(eventId) {
+    return this._withTransaction("events", "readwrite", (tx) => 
+      tx.objectStore("events").delete(eventId)
+    );
+  },
+
+  removeLastEvent(actionId) {
+    return this._withTransaction("events", "readwrite", (tx) => {
+      const store = tx.objectStore("events");
+      const req = store.index("actionId").openCursor(IDBKeyRange.only(actionId), "prev");
+      return new Promise((res) => {
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+        if (cursor) {
+            cursor.delete();
+            res(true);
+          } else res(false);
+        };
+      });
     });
   },
 
-  async updateEvent(event) {
-    const db = await this.init();
-    const tx = db.transaction("events", "readwrite");
-    tx.objectStore("events").put(event);
-    return new Promise((res, rej) => {
-      tx.oncomplete = res;
-      tx.onerror = (e) => rej(e.target.error);
-    });
-  },
-
-  async deleteEvent(eventId) {
-    const db = await this.init();
-    const tx = db.transaction("events", "readwrite");
-    tx.objectStore("events").delete(eventId);
-    return new Promise((res, rej) => {
-      tx.oncomplete = res;
-      tx.onerror = (e) => rej(e.target.error);
-    });
-  },
-
-  async removeLastEvent(actionId) {
-    const db = await this.init();
-    const tx = db.transaction("events", "readwrite");
-    const store = tx.objectStore("events");
-    const index = store.index("actionId");
-    
-    return new Promise((resolve) => {
-      const request = index.openCursor(IDBKeyRange.only(actionId), "prev");
-      request.onsuccess = (e) => {
+  deleteAction(actionId) {
+    return this._withTransaction(["actions", "events"], "readwrite", (tx) => {
+      tx.objectStore("actions").delete(actionId);
+      const index = tx.objectStore("events").index("actionId");
+      const req = index.openCursor(IDBKeyRange.only(actionId));
+      req.onsuccess = (e) => {
         const cursor = e.target.result;
         if (cursor) {
-          store.delete(cursor.primaryKey);
-          resolve(true);
-        } else {
-          resolve(false);
+          cursor.delete();
+          cursor.continue();
         }
       };
-    });
-  },
-
-  async deleteAction(actionId) {
-    const db = await this.init();
-    const tx = db.transaction(["actions", "events"], "readwrite");
-    
-    // Delete the action
-    tx.objectStore("actions").delete(actionId);
-    
-    // Delete all associated events (cleanup)
-    const eventStore = tx.objectStore("events");
-    const index = eventStore.index("actionId");
-    const request = index.openCursor(IDBKeyRange.only(actionId));
-    request.onsuccess = (e) => {
-      const cursor = e.target.result;
-      if (cursor) {
-        cursor.delete();
-        cursor.continue();
-      }
-    };
-    return new Promise((res, rej) => {
-      tx.oncomplete = res;
-      tx.onerror = (e) => rej(e.target.error);
     });
   },
 
@@ -145,12 +126,12 @@ const DB = {
   getDarkMode: () => localStorage.getItem("app_dark_mode") === "true",
   setDarkMode: (isDark) => localStorage.setItem("app_dark_mode", isDark),
 
-  async clearAll() {
-    const db = await this.init();
-    const tx = db.transaction(["actions", "events"], "readwrite");
-    tx.objectStore("actions").clear();
-    tx.objectStore("events").clear();
-    tx.oncomplete = () => location.reload();
+  clearAll() {
+    return this._withTransaction(["actions", "events"], "readwrite", (tx) => {
+      tx.objectStore("actions").clear();
+      tx.objectStore("events").clear();
+      tx.oncomplete = () => location.reload();
+    });
   },
 
   async migrateFromLocalStorage() {
