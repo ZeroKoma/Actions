@@ -470,7 +470,7 @@ const UI = {
     dialog.showModal();
   },
 
-  async showManualEntryDialog() {
+  async showManualEntryDialog(prefilledDate = null) {
     const actions = await DB.getActions();
     const select = document.getElementById("manual-action-select");
     const dateInput = document.getElementById("manual-date-input");
@@ -479,9 +479,13 @@ const UI = {
     // Fill actions dropdown
     select.innerHTML = actions.map(a => `<option value="${a.id}">${a.text}</option>`).join('');
     
-    // Default to current date and time
+    // Default to current date and time or use prefilled date from calendar
     const now = new Date();
-    dateInput.value = now.toISOString().split('T')[0];
+    const targetDate = prefilledDate || now;
+    const yyyy = targetDate.getFullYear();
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(targetDate.getDate()).padStart(2, '0');
+    dateInput.value = `${yyyy}-${mm}-${dd}`;
     timeInput.value = now.toTimeString().slice(0, 5);
     
     document.getElementById("manual-entry-dialog").showModal();

@@ -461,6 +461,7 @@ main#content {
   text-align: center;
   font-size: 1rem;
   border: none;
+  cursor: pointer;
   border-radius: 0; /* Changed to rectangular */
   display: flex;
   flex-direction: column;
@@ -468,6 +469,11 @@ main#content {
   min-height: 75px;
   box-shadow: none;
   transition: transform 0.2s ease;
+}
+
+.day-cell.future-day {
+  cursor: default;
+  opacity: 0.5;
 }
 
 .day-cell.current-day {

@@ -190,6 +190,9 @@ const Calendar = {
     const dailyData = [];
     const t = this.getLabels();
 
+    const todayNormalized = new Date();
+    todayNormalized.setHours(0, 0, 0, 0);
+
     let weeklyTotal = 0;
 
     // Add day headers
@@ -231,6 +234,7 @@ const Calendar = {
       });
       weeklyTotal += count;
 
+      const isFuture = currentDay > todayNormalized;
       const today = new Date();
       const isToday =
         currentDay.getDate() === today.getDate() &&
@@ -243,11 +247,23 @@ const Calendar = {
       const isCompleted = isTargetDay && goal > 0 && count >= goal;
 
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""} ${isFuture ? "future-day" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${currentDay.getDate()}</div>
-        <div class="count">${count}</div>
+        ${count > 0 ? `<div class="count">${count}</div>` : ''}
       `;
+
+      cell.onclick = () => {
+        if (isFuture) return;
+        
+        if (count > 0) {
+          this.currentHistoryDate = new Date(currentDay);
+          UI.showView('history');
+        } else {
+          UI.showManualEntryDialog(new Date(currentDay));
+        }
+      };
+
       grid.appendChild(cell);
     }
 
@@ -282,7 +298,7 @@ const Calendar = {
             .map(
               (p, i) => `
             <circle cx="${p.x}" cy="${p.y}" r="6" class="chart-point" style="animation-delay: ${i * 0.15}s" />
-            <text x="${p.x}" y="${p.y - 18}" text-anchor="middle" class="chart-text" style="animation-delay: ${i * 0.15}s; fill: var(--primary); font-size: 18px; font-weight: bold; font-family: sans-serif;">${p.count}</text>
+            ${p.count > 0 ? `<text x="${p.x}" y="${p.y - 18}" text-anchor="middle" class="chart-text" style="animation-delay: ${i * 0.15}s; fill: var(--primary); font-size: 18px; font-weight: bold; font-family: sans-serif;">${p.count}</text>` : ''}
           `,
             )
             .join("")}
@@ -386,6 +402,9 @@ const Calendar = {
     const offset = isEn ? firstDay : firstDay === 0 ? 6 : firstDay - 1;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+    const todayNormalized = new Date();
+    todayNormalized.setHours(0, 0, 0, 0);
+
     // Fill leading empty days
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     for (let i = 0; i < offset; i++) {
@@ -397,10 +416,12 @@ const Calendar = {
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = new Date(year, month, d).toLocaleDateString("es-ES");
+      const dateObj = new Date(year, month, d);
+      const dateStr = dateObj.toLocaleDateString("es-ES");
       const count = filteredEvents.filter((e) => e.date === dateStr).length;
       monthlyTotal += count;
 
+      const isFuture = dateObj > todayNormalized;
       const today = new Date();
       const isToday =
         d === today.getDate() &&
@@ -413,11 +434,23 @@ const Calendar = {
       const isCompleted = isTargetDay && goal > 0 && count >= goal;
 
       const cell = document.createElement("div");
-      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""}`;
+      cell.className = `day-cell ${isToday ? "current-day" : ""} ${count > 0 ? "has-activity" : ""} ${isCompleted ? "completed" : ""} ${hasTarget ? "has-target" : ""} ${isFuture ? "future-day" : ""}`;
       cell.innerHTML = `
         <div class="day-num">${d}</div>
-        <div class="count">${count}</div>
+        ${count > 0 ? `<div class="count">${count}</div>` : ''}
       `;
+
+      cell.onclick = () => {
+        if (isFuture) return;
+        
+        if (count > 0) {
+          this.currentHistoryDate = new Date(year, month, d);
+          UI.showView('history');
+        } else {
+          UI.showManualEntryDialog(new Date(year, month, d));
+        }
+      };
+
       grid.appendChild(cell);
     }
 
