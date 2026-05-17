@@ -924,6 +924,7 @@ main#content {
   gap: 6px;
   color: var(--text);
   border: 1px solid #f1f5f9;
+  cursor: pointer;
 }
 
 .empty-history {

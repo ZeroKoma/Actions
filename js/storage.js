@@ -75,6 +75,26 @@ const DB = {
     });
   },
 
+  async updateEvent(event) {
+    const db = await this.init();
+    const tx = db.transaction("events", "readwrite");
+    tx.objectStore("events").put(event);
+    return new Promise((res, rej) => {
+      tx.oncomplete = res;
+      tx.onerror = (e) => rej(e.target.error);
+    });
+  },
+
+  async deleteEvent(eventId) {
+    const db = await this.init();
+    const tx = db.transaction("events", "readwrite");
+    tx.objectStore("events").delete(eventId);
+    return new Promise((res, rej) => {
+      tx.oncomplete = res;
+      tx.onerror = (e) => rej(e.target.error);
+    });
+  },
+
   async removeLastEvent(actionId) {
     const db = await this.init();
     const tx = db.transaction("events", "readwrite");

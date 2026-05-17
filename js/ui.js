@@ -39,7 +39,8 @@ const UI = {
       allDays: "Todos los días",
       selectAll: "Todos",
       selectWeekdays: "Lun-Vie",
-      selectWeekends: "S-D"
+      selectWeekends: "S-D",
+      editEntry: "Editar registro"
     },
     en: {
       appTitle: "Home",
@@ -80,7 +81,8 @@ const UI = {
       allDays: "Every day",
       selectAll: "All",
       selectWeekdays: "Mon-Fri",
-      selectWeekends: "Wknd"
+      selectWeekends: "Wknd",
+      editEntry: "Edit entry"
     }
   },
 
@@ -489,6 +491,64 @@ const UI = {
     timeInput.value = now.toTimeString().slice(0, 5);
     
     document.getElementById("manual-entry-dialog").showModal();
+  },
+
+  async showEditEventDialog(eventId) {
+    const events = await DB.getEvents();
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+
+    let dialog = document.getElementById("edit-event-dialog");
+    if (!dialog) {
+      dialog = document.createElement("dialog");
+      dialog.id = "edit-event-dialog";
+      dialog.className = "modal-dialog";
+      document.body.appendChild(dialog);
+    }
+
+    const t = this.translations[DB.getLang()];
+    dialog.innerHTML = `
+      <div class="dialog-content">
+        <h3>${t.editEntry}</h3>
+        <div class="manual-form-fields">
+          <label class="field-label">${t.labelTime}</label>
+          <input type="time" id="edit-event-time" class="edit-input" value="${event.time}">
+        </div>
+        <div class="dialog-buttons">
+          <button id="edit-event-delete" class="btn-icon-danger" title="${t.accept}">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </button>
+          <button id="edit-event-cancel" class="btn-secondary">${t.cancel}</button>
+          <button id="edit-event-save" class="btn-primary-action">${t.accept}</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("edit-event-cancel").onclick = () => dialog.close();
+    
+    document.getElementById("edit-event-delete").onclick = async () => {
+      const confirmAccept = document.getElementById("confirm-accept");
+      confirmAccept.onclick = async () => {
+        await DB.deleteEvent(eventId);
+        await Calendar.renderHistory();
+        await this.renderMain();
+        document.getElementById("confirm-dialog").close();
+        dialog.close();
+      };
+      document.getElementById("confirm-dialog").showModal();
+    };
+
+    document.getElementById("edit-event-save").onclick = async () => {
+      const newTime = document.getElementById("edit-event-time").value;
+      if (newTime) {
+        event.time = newTime;
+        await DB.updateEvent(event);
+        await Calendar.renderHistory();
+        await this.renderMain();
+        dialog.close();
+      }
+    };
+    dialog.showModal();
   },
 
   showView(viewName) {
