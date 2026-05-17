@@ -172,13 +172,13 @@ main#content {
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  margin: 0.3rem auto;
+  margin: 0.75rem auto;
   cursor: pointer;
   width: 100%;
   max-width: 100%;
-  display: flex; /* Cambiado a columna para el nuevo diseño */
+  display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   border: 1px solid rgba(79, 70, 229, 0.1);
   transition:
     transform 0.2s ease,
@@ -207,7 +207,7 @@ main#content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
 .fab-btn {
@@ -258,7 +258,7 @@ main#content {
 }
 
 .counter-text {
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #64748b;
   margin: 0;
@@ -276,7 +276,7 @@ main#content {
 .edit-input {
   width: 100%;
   padding: 0.8rem;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
   font-size: 1.1rem;
   font-weight: 500;
@@ -301,29 +301,24 @@ main#content {
 }
 
 .goal-text {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: #64748b;
   font-weight: 600;
 }
 
 .active-days-info {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #64748b;
   font-weight: 500;
   display: block;
 }
 
-.active-days-info .is-today {
-  color: var(--primary);
-  font-weight: 700;
-}
-
 .completed-label {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: #16a34a;
   text-transform: uppercase;
-  margin-left: 8px; /* Ajuste para que se vea junto a la meta */
+  margin-top: 4px;
 }
 
 .goal-input-container {
@@ -335,7 +330,7 @@ main#content {
 .btn-goal-adjust {
   width: 44px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
   background: white;
   font-size: 1.5rem;
@@ -354,7 +349,7 @@ main#content {
 }
 
 .counter-badge {
-  font-size: 1.8rem; /* Un poco más pequeño para caber en la fila */
+  font-size: 1.8rem;
   font-weight: bold;
   color: var(--primary);
   margin: 0;
@@ -374,7 +369,7 @@ main#content {
   padding: 8px 16px;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 99px;
   font-size: 0.85rem;
   font-weight: 600;
   color: #64748b;
@@ -440,7 +435,7 @@ main#content {
   gap: 1px;
   background: #e2e8f0;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   margin-top: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -558,7 +553,7 @@ main#content {
   line-height: 1.2;
   background: var(--bg);
   color: var(--text-muted);
-  border-radius: 6px;
+  border-radius: 10px;
   border: 1px solid rgba(79, 70, 229, 0.05);
   padding: 4px 8px;
   min-width: 24px;
@@ -575,7 +570,7 @@ main#content {
   margin-top: 1.5rem;
   padding: 1.5rem 1.5rem 2rem;
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   height: 180px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(79, 70, 229, 0.1);
@@ -646,7 +641,7 @@ main#content {
   margin-top: 1rem;
   padding: 0.8rem;
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(79, 70, 229, 0.1);
@@ -665,7 +660,7 @@ main#content {
 /* Styles for confirmation dialog */
 .modal-dialog {
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 0;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   max-width: 320px;
@@ -704,7 +699,7 @@ main#content {
   background: #f1f5f9;
   border: none;
   padding: 0.75rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
@@ -715,7 +710,7 @@ main#content {
   background: var(--danger);
   border: none;
   padding: 0.75rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   color: white;
   cursor: pointer;
@@ -726,7 +721,7 @@ main#content {
   background: var(--primary);
   border: none;
   padding: 0.75rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
   color: white;
   cursor: pointer;
@@ -738,7 +733,7 @@ main#content {
   border: none;
   width: 48px;
   height: 48px;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -751,7 +746,7 @@ main#content {
   border: 1px solid #fee2e2;
   padding: 1rem;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-top: 2rem;
   font-weight: 600;
   cursor: pointer;
@@ -776,7 +771,7 @@ main#content {
   margin-bottom: 1.5rem;
   background: var(--card);
   padding: 0.6rem;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -795,9 +790,6 @@ main#content {
   border: 1px solid rgba(79, 70, 229, 0.2);
   box-shadow: 0 5px 10px -3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.6rem;
-  font-weight: 800;
-  text-transform: uppercase;
 }
 
 .nav-controls button:hover {
@@ -839,7 +831,7 @@ main#content {
   text-transform: uppercase;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 6px;
+  border-radius: 10px;
   text-decoration: none;
   white-space: nowrap;
   display: inline-flex;
@@ -861,7 +853,7 @@ main#content {
 
 .history-day-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 20px;
   padding: 1.5rem;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   min-height: 200px;
@@ -899,7 +891,7 @@ main#content {
   font-size: 0.9rem;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 8px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -915,7 +907,7 @@ main#content {
 .history-time-item {
   background: #f8fafc;
   padding: 8px;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 1.1rem;
   font-weight: 600;
   display: flex;
@@ -985,7 +977,7 @@ main#content {
   background: #1e293b;
   color: #ffffff;
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 99px;
   font-size: 0.9rem;
   font-weight: 600;
   z-index: 10000;

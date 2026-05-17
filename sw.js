@@ -1,4 +1,4 @@
-// SW Version: 4.7.0
+// SW Version: 4.7.1
 importScripts("./js/utils.js");
 const CACHE_NAME = `action-counter-v${Utils.VERSION}`;
 const ASSETS = [
