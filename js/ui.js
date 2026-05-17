@@ -28,6 +28,7 @@ const UI = {
       editGoal: "Meta diaria (0 = libre)",
       min: "Mínimo",
       max: "Máximo",
+      goalPrefix: "Objetivo: ",
       completed: "¡Completado!",
       manualTitle: "Registro Manual",
       labelAction: "Acción",
@@ -68,6 +69,7 @@ const UI = {
       editGoal: "Daily goal (0 = free)",
       min: "Minimum",
       max: "Maximum",
+      goalPrefix: "Goal: ",
       completed: "Completed!",
       manualTitle: "Manual Entry",
       labelAction: "Action",
@@ -125,22 +127,28 @@ const UI = {
       
       wrapper.innerHTML = `
         <div class="counter-card ${isCompleted ? 'completed' : ''}">
-          <div class="card-left">
+          <div class="card-row">
             <h2 class="counter-text">${action.text}</h2>
-            ${goal > 0 ? `<span class="goal-text">${count} / ${goal}</span>` : ''}
+            <div class="counter-badge">
+              <span>${count}</span>
+            </div>
+          </div>
+          <div class="card-row">
             <span class="active-days-info">${daysText}</span>
-            ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
           </div>
-          <div class="counter-badge">
-            <span>${count}</span>
-          </div>
-          <div class="card-right">
-            <button class="btn-edit-action" aria-label="Editar">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-            </button>
-            <button class="btn-undo ${count === 0 ? 'hidden' : ''}" title="${this.translations[DB.getLang()].undo}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
-            </button>
+          <div class="card-row">
+            <div class="goal-info">
+              ${goal > 0 ? `<span class="goal-text">${t.goalPrefix}${count} / ${goal}</span>` : ''}
+              ${isCompleted ? `<span class="completed-label">${t.completed}</span>` : ''}
+            </div>
+            <div class="card-actions">
+              <button class="btn-undo ${count === 0 ? 'hidden' : ''}" title="${this.translations[DB.getLang()].undo}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+              </button>
+              <button class="btn-edit-action" aria-label="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       `;
