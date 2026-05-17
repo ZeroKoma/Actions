@@ -28,7 +28,7 @@ body.dark-mode .day-cell .count { background-color: #334155; color: var(--text-m
 body.dark-mode .day-cell.has-activity .count { background-color: var(--primary); color: #0f172a; border: none; font-weight: 800; }
 body.dark-mode .calendar-header-cell { background-color: #1e293b; border-color: #334155; }
 body.dark-mode .calendar-grid { background-color: #334155; border-color: #334155; }
-body.dark-mode .counter-text { color: var(--text-muted); }
+body.dark-mode .counter-text { color: var(--text); }
 body.dark-mode .counter-card { background: var(--card); border-color: rgba(129, 140, 248, 0.2); }
 body.dark-mode .counter-card.completed { border-color: #4ade80; background: rgba(34, 197, 94, 0.1); }
 body.dark-mode .completed-label { color: #4ade80; }
@@ -167,12 +167,12 @@ main#content {
 .counter-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(8px);
-  border-radius: 24px;
+  border-radius: 12px;
   padding: 1rem 1.5rem;
   box-shadow:
     0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  margin: 0.75rem auto;
+  margin: 0.3rem auto;
   cursor: pointer;
   width: 100%;
   max-width: 100%;
@@ -207,7 +207,7 @@ main#content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .fab-btn {
@@ -258,9 +258,9 @@ main#content {
 }
 
 .counter-text {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
   margin: 0;
   text-transform: capitalize;
 }
@@ -276,7 +276,7 @@ main#content {
 .edit-input {
   width: 100%;
   padding: 0.8rem;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
   font-size: 1.1rem;
   font-weight: 500;
@@ -301,20 +301,20 @@ main#content {
 }
 
 .goal-text {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: #64748b;
   font-weight: 600;
 }
 
 .active-days-info {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #64748b;
   font-weight: 500;
   display: block;
 }
 
 .completed-label {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 800;
   color: #16a34a;
   text-transform: uppercase;
@@ -330,7 +330,7 @@ main#content {
 .btn-goal-adjust {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 6px;
   border: 1px solid #e2e8f0;
   background: white;
   font-size: 1.5rem;
@@ -349,7 +349,7 @@ main#content {
 }
 
 .counter-badge {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: bold;
   color: var(--primary);
   margin: 0;
@@ -369,7 +369,7 @@ main#content {
   padding: 8px 16px;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 99px;
+  border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 600;
   color: #64748b;
@@ -435,7 +435,7 @@ main#content {
   gap: 1px;
   background: #e2e8f0;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 6px;
   overflow: hidden;
   margin-top: 1rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
@@ -553,7 +553,7 @@ main#content {
   line-height: 1.2;
   background: var(--bg);
   color: var(--text-muted);
-  border-radius: 10px;
+  border-radius: 6px;
   border: 1px solid rgba(79, 70, 229, 0.05);
   padding: 4px 8px;
   min-width: 24px;
@@ -570,7 +570,7 @@ main#content {
   margin-top: 1.5rem;
   padding: 1.5rem 1.5rem 2rem;
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   height: 180px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(79, 70, 229, 0.1);
@@ -641,7 +641,7 @@ main#content {
   margin-top: 1rem;
   padding: 0.8rem;
   background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(79, 70, 229, 0.1);
@@ -660,7 +660,7 @@ main#content {
 /* Styles for confirmation dialog */
 .modal-dialog {
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 0;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   max-width: 320px;
@@ -699,7 +699,7 @@ main#content {
   background: #f1f5f9;
   border: none;
   padding: 0.75rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   color: #475569;
   cursor: pointer;
@@ -710,7 +710,7 @@ main#content {
   background: var(--danger);
   border: none;
   padding: 0.75rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   color: white;
   cursor: pointer;
@@ -721,7 +721,7 @@ main#content {
   background: var(--primary);
   border: none;
   padding: 0.75rem;
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
   color: white;
   cursor: pointer;
@@ -733,7 +733,7 @@ main#content {
   border: none;
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -746,7 +746,7 @@ main#content {
   border: 1px solid #fee2e2;
   padding: 1rem;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 8px;
   margin-top: 2rem;
   font-weight: 600;
   cursor: pointer;
@@ -771,7 +771,7 @@ main#content {
   margin-bottom: 1.5rem;
   background: var(--card);
   padding: 0.6rem;
-  border-radius: 12px;
+  border-radius: 8px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -790,6 +790,8 @@ main#content {
   border: 1px solid rgba(79, 70, 229, 0.2);
   box-shadow: 0 5px 10px -3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.55rem;
+  font-weight: 900;
 }
 
 .nav-controls button:hover {
@@ -826,12 +828,12 @@ main#content {
   background: var(--bg);
   border: 1px solid rgba(79, 70, 229, 0.2);
   color: var(--primary);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: 6px;
   text-decoration: none;
   white-space: nowrap;
   display: inline-flex;
@@ -853,7 +855,7 @@ main#content {
 
 .history-day-container {
   background: white;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   min-height: 200px;
@@ -891,7 +893,7 @@ main#content {
   font-size: 0.9rem;
   font-weight: 700;
   padding: 4px 12px;
-  border-radius: 99px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -907,7 +909,7 @@ main#content {
 .history-time-item {
   background: #f8fafc;
   padding: 8px;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 1.1rem;
   font-weight: 600;
   display: flex;
@@ -977,7 +979,7 @@ main#content {
   background: #1e293b;
   color: #ffffff;
   padding: 12px 24px;
-  border-radius: 99px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   z-index: 10000;
@@ -1025,7 +1027,7 @@ main#content {
   inset: 0;
   background-color: #cbd5e1;
   transition: .4s;
-  border-radius: 24px;
+  border-radius: 12px;
 }
 
 .slider:before {
