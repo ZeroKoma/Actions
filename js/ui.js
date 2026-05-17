@@ -40,7 +40,8 @@ const UI = {
       selectAll: "Todos",
       selectWeekdays: "Lun-Vie",
       selectWeekends: "S-D",
-      editEntry: "Editar registro"
+      editEntry: "Editar registro",
+      entrySaved: "¡Registro guardado!"
     },
     en: {
       appTitle: "Home",
@@ -82,7 +83,8 @@ const UI = {
       selectAll: "All",
       selectWeekdays: "Mon-Fri",
       selectWeekends: "Wknd",
-      editEntry: "Edit entry"
+      editEntry: "Edit entry",
+      entrySaved: "Entry saved!"
     }
   },
 
@@ -348,6 +350,56 @@ const UI = {
     }, { passive: true });
   },
 
+  /**
+   * Gestiona el guardado de una entrada manual.
+   */
+  async _handleManualSave() {
+    const actionId = Number(document.getElementById("manual-action-select").value);
+    const dateVal = document.getElementById("manual-date-input").value;
+    const timeVal = document.getElementById("manual-time-input").value;
+    const t = this.translations[DB.getLang()];
+
+    if (actionId && dateVal && timeVal) {
+      const actions = await DB.getActions();
+      const action = actions.find(a => a.id === actionId);
+      
+      const tempDate = new Date(`${dateVal}T12:00:00`);
+      const formattedDate = Utils.formatDate(tempDate);
+      const fullIso = new Date(`${dateVal}T${timeVal}`).toISOString();
+
+      const event = {
+        id: Date.now(),
+        actionId: action.id,
+        actionText: action.text,
+        full: fullIso,
+        date: formattedDate,
+        time: timeVal
+      };
+
+      await DB.addEvent(event);
+      
+      Calendar.selectedWeeklyActionId = action.id;
+      Calendar.selectedMonthlyActionId = action.id;
+
+      await this.renderMain();
+      await Calendar.renderAll();
+      
+      this._showToast(t.entrySaved);
+
+      document.getElementById("manual-entry-dialog").close();
+    }
+  },
+
+  _showToast(msg) {
+    const toast = document.createElement("div");
+    toast.className = "update-toast";
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 2000);
+  },
+
   updateLanguageStrings() {
     const lang = DB.getLang();
     const t = this.translations[lang];
@@ -428,6 +480,8 @@ const UI = {
       dayPickerContainer = document.createElement("div");
       dayPickerContainer.id = "day-picker-container";
       const goalInput = document.getElementById("edit-action-goal");
+      if (!goalInput) return; // Seguridad: evitar error si el ID no existe
+      
       const anchor = goalInput.closest(".settings-item") || goalInput.parentElement;
       if (anchor) anchor.after(dayPickerContainer);
     }

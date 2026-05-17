@@ -93,13 +93,13 @@ const DB = {
     return this._withTransaction("events", "readwrite", (tx) => {
       const store = tx.objectStore("events");
       const req = store.index("actionId").openCursor(IDBKeyRange.only(actionId), "prev");
-      return new Promise((res) => {
+      return new Promise((resolve) => {
         req.onsuccess = (e) => {
           const cursor = e.target.result;
-        if (cursor) {
+          if (cursor) {
             cursor.delete();
-            res(true);
-          } else res(false);
+            resolve(true);
+          } else resolve(false);
         };
       });
     });
@@ -110,13 +110,17 @@ const DB = {
       tx.objectStore("actions").delete(actionId);
       const index = tx.objectStore("events").index("actionId");
       const req = index.openCursor(IDBKeyRange.only(actionId));
-      req.onsuccess = (e) => {
-        const cursor = e.target.result;
-        if (cursor) {
-          cursor.delete();
-          cursor.continue();
-        }
-      };
+      return new Promise((resolve) => {
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            cursor.delete();
+            cursor.continue();
+          } else {
+            resolve();
+          }
+        };
+      });
     });
   },
 
@@ -130,8 +134,7 @@ const DB = {
     return this._withTransaction(["actions", "events"], "readwrite", (tx) => {
       tx.objectStore("actions").clear();
       tx.objectStore("events").clear();
-      tx.oncomplete = () => location.reload();
-    });
+    }).then(() => location.reload());
   },
 
   async migrateFromLocalStorage() {
