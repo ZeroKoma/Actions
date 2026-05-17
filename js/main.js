@@ -1,6 +1,10 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     await App.init();
+    // Registro del Service Worker y gestión de actualizaciones
+    if ("serviceWorker" in navigator) {
+      App._setupServiceWorker();
+    }
   } catch (error) {
     console.error("Critical error during app startup:", error);
   }
@@ -24,6 +28,58 @@ const App = {
     
     // 4. Mostrar vista inicial
     UI.showView('main');
+  },
+
+  /**
+   * Configura el Service Worker y detecta actualizaciones.
+   */
+  _setupServiceWorker() {
+    navigator.serviceWorker.register("./sw.js").then((reg) => {
+      // 1. Si ya hay un worker esperando desde una sesión anterior
+      if (reg.waiting) {
+        this._notifyUpdate(reg.waiting);
+      }
+
+      // 2. Si hay un worker instalándose, esperar a que termine
+      if (reg.installing) {
+        this._trackInstallation(reg.installing);
+      }
+
+      // 3. Detectar futuras actualizaciones
+      reg.addEventListener("updatefound", () => {
+        this._trackInstallation(reg.installing);
+      });
+
+      // Comprobar actualizaciones manualmente al enfocar la app
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") reg.update();
+      });
+    });
+
+    // Recargar la página cuando el nuevo service worker tome el control
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      window.location.reload();
+    });
+  },
+
+  /**
+   * Rastrea el estado de una instalación en curso.
+   */
+  _trackInstallation(worker) {
+    worker.addEventListener("statechange", () => {
+      if (worker.state === "installed" && navigator.serviceWorker.controller) {
+        this._notifyUpdate(worker);
+      }
+    });
+  },
+
+  /**
+   * Notifica al usuario que hay una actualización disponible.
+   */
+  _notifyUpdate(worker) {
+    UI.showUpdateToast(() => {
+      worker.postMessage({ type: "SKIP_WAITING" });
+    });
   },
 
   /**

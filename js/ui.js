@@ -41,7 +41,8 @@ const UI = {
       selectWeekdays: "Lun-Vie",
       selectWeekends: "S-D",
       editEntry: "Editar registro",
-      entrySaved: "¡Registro guardado!"
+      entrySaved: "¡Registro guardado!",
+      updateAvailable: "Nueva versión disponible. Toca para actualizar."
     },
     en: {
       appTitle: "Home",
@@ -84,7 +85,8 @@ const UI = {
       selectWeekdays: "Mon-Fri",
       selectWeekends: "Wknd",
       editEntry: "Edit entry",
-      entrySaved: "Entry saved!"
+      entrySaved: "Entry saved!",
+      updateAvailable: "New version available. Tap to update."
     }
   },
 
@@ -348,6 +350,28 @@ const UI = {
         }
       }
     }, { passive: true });
+  },
+
+  /**
+   * Muestra un toast persistente para la actualización del PWA.
+   */
+  showUpdateToast(callback) {
+    // Evitar duplicados si ya existe un toast de actualización
+    if (document.querySelector(".update-toast")) return;
+
+    const lang = DB.getLang();
+    const t = this.translations[lang];
+    const toast = document.createElement("div");
+    toast.className = "update-toast";
+    toast.style.cursor = "pointer";
+    toast.textContent = t.updateAvailable;
+    
+    toast.onclick = () => {
+      callback();
+      toast.remove();
+    };
+
+    document.body.appendChild(toast);
   },
 
   /**

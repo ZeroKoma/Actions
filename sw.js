@@ -1,4 +1,4 @@
-// SW Version: 4.8.1
+// SW Version: 4.8.3
 importScripts("./js/utils.js");
 const CACHE_NAME = `action-counter-v${Utils.VERSION}`;
 const ASSETS = [
@@ -24,7 +24,6 @@ self.addEventListener("install", (e) => {
           console.error(`Error caching resource: ${asset}`, err);
         }
       }
-      return self.skipWaiting();
     }),
   );
 });
@@ -44,4 +43,10 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
