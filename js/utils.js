@@ -1,5 +1,5 @@
 const Utils = {
-  VERSION: "4.8.6",
+  VERSION: "4.8.7",
 
   // Locale interno para claves de BD y formateo consistente.
   // No se debe cambiar para no romper la compatibilidad con datos existentes.

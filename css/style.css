@@ -397,6 +397,7 @@ main#content {
   word-break: break-word;
   max-width: 100%; /* Ensure a single pill is not wider than the screen */
   user-select: none; /* Prevent text selection to avoid browser search pop-ups */
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -488,6 +489,9 @@ main#content {
   justify-content: space-between;
   min-height: 75px;
   box-shadow: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
   transition: transform 0.2s ease;
 }
 

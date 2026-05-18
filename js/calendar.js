@@ -152,8 +152,8 @@ const Calendar = {
     }
 
     container.innerHTML = actions.map(action => `
-      <div class="selector-chip ${this[selectionKey] === action.id ? 'active' : ''}" 
-           data-id="${action.id}">${action.text}</div>
+      <button class="selector-chip ${this[selectionKey] === action.id ? 'active' : ''}" 
+           data-id="${action.id}">${action.text}</button>
     `).join('');
 
     container.querySelectorAll(".selector-chip").forEach(chip => {
