@@ -142,6 +142,29 @@ const DB = {
     });
   },
 
+  async exportAll() {
+    const actions = await this.getActions();
+    const events = await this.getEvents();
+    return { appId: "ActionCounter", actions, events, version: Utils.VERSION, exportedAt: new Date().toISOString() };
+  },
+
+  async importAll(data, merge = false) {
+    if (data.appId !== "ActionCounter" || !data.actions || !data.events) throw new Error("Formato inválido");
+    
+    return this._withTransaction(["actions", "events"], "readwrite", (tx) => {
+      const actionStore = tx.objectStore("actions");
+      const eventStore = tx.objectStore("events");
+      
+      if (!merge) {
+        actionStore.clear();
+        eventStore.clear();
+      }
+      
+      data.actions.forEach(a => actionStore.put(a));
+      data.events.forEach(e => eventStore.put(e));
+    });
+  },
+
   async migrateFromLocalStorage() {
     const oldActionsStr = localStorage.getItem("app_actions");
     const oldEventsStr = localStorage.getItem("app_events");

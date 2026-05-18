@@ -1,5 +1,5 @@
 const Utils = {
-  VERSION: "4.8.7",
+  VERSION: "4.8.9",
 
   // Locale interno para claves de BD y formateo consistente.
   // No se debe cambiar para no romper la compatibilidad con datos existentes.
@@ -54,5 +54,20 @@ const Utils = {
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  },
+
+  /**
+   * Genera el nombre del archivo de backup: actions_backup_lun-16-ago-2026.json
+   */
+  getBackupFileName() {
+    const d = new Date();
+    const parts = d.toLocaleDateString(this._INTERNAL_LOCALE, {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).toLowerCase().split(/[ ,.]+/).filter(Boolean);
+    
+    return `actions_backup_${parts.join('-')}.json`;
   }
 };

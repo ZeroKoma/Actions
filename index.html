@@ -202,6 +202,22 @@
             </div>
           </div>
 
+          <div class="settings-group" style="margin-top: 1rem; background: white; padding: 1rem; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <label id="label-data" style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 1rem;">Datos (JSON)</label>
+            <div style="display: flex; gap: 10px;">
+              <button id="btn-export" class="btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span id="text-export">Exportar</span>
+              </button>
+              <button id="btn-import" class="btn-secondary" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span id="text-import">Importar</span>
+              </button>
+            </div>
+            <!-- Input oculto para cargar archivos -->
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+          </div>
+
           <button id="reset-app" class="btn-danger">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -286,6 +302,19 @@
         </div>
       </dialog>
 
+      <!-- Import Options Dialog -->
+      <dialog id="import-options-dialog" class="modal-dialog">
+        <div class="dialog-content">
+          <h3 id="import-title">Importar datos</h3>
+          <p id="import-body">¿Cómo quieres importar los datos?</p>
+          <div class="dialog-buttons" style="flex-direction: column; gap: 0.5rem;">
+            <button id="import-merge-btn" class="btn-primary-action">Mezclar con datos actuales</button>
+            <button id="import-overwrite-btn" class="btn-danger-action" style="background-color: var(--danger);">Borrar y sobrescribir todo</button>
+            <button id="import-cancel-btn" class="btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </dialog>
+
       <!-- Confirmation dialog -->
       <dialog id="confirm-dialog" class="modal-dialog">
         <div class="dialog-content">
@@ -353,34 +382,5 @@
     <script src="js/ui.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/main.js"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').then(reg => {
-            // Force an update check every time the app is opened
-            reg.update();
-          }).catch(err => console.log('SW registration failed:', err));
-        });
-
-        // Detect when the new Service Worker takes control and reloads the page
-        let refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          if (!refreshing) {
-            refreshing = true;
-            
-            // Create and show update notification
-            const lang = localStorage.getItem("app_lang") || "es";
-            const msg = lang === "en" ? "App updated! Reloading..." : "¡App actualizada! Recargando...";
-            const toast = document.createElement("div");
-            toast.className = "update-toast";
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            
-            // Wait a moment for the user to read the message before reloading
-            setTimeout(() => window.location.reload(), 1500);
-          }
-        });
-      }
-    </script>
   </body>
 </html>

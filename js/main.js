@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    await App.init();
-    // Registro del Service Worker y gestión de actualizaciones
+    // 1. Registro del Service Worker (No bloqueante)
+    // Lo movemos aquí para que busque actualizaciones incluso si la app está bloqueada por PIN
     if ("serviceWorker" in navigator) {
       App._setupServiceWorker();
     }
+    // 2. Inicialización de la App (Bloqueante por el PIN)
+    await App.init();
   } catch (error) {
     console.error("Critical error during app startup:", error);
   }
@@ -41,18 +43,18 @@ const App = {
    */
   _setupServiceWorker() {
     navigator.serviceWorker.register("./sw.js").then((reg) => {
+      console.log("SW registrado. Buscando actualizaciones...");
+      // Forzar comprobación de actualización inmediata al abrir
+      reg.update();
+
       // 1. Si ya hay un worker esperando desde una sesión anterior
       if (reg.waiting) {
         this._notifyUpdate(reg.waiting);
       }
 
-      // 2. Si hay un worker instalándose, esperar a que termine
-      if (reg.installing) {
-        this._trackInstallation(reg.installing);
-      }
-
       // 3. Detectar futuras actualizaciones
       reg.addEventListener("updatefound", () => {
+        console.log("Nueva actualización encontrada, instalando...");
         this._trackInstallation(reg.installing);
       });
 
@@ -64,7 +66,12 @@ const App = {
 
     // Recargar la página cuando el nuevo service worker tome el control
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      window.location.reload();
+      // Pequeño aviso antes de recargar
+      const lang = DB.getLang();
+      const msg = lang === "en" ? "Updating app..." : "Actualizando app...";
+      UI._showToast(msg);
+      
+      setTimeout(() => window.location.reload(), 1000);
     });
   },
 

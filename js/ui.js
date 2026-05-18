@@ -46,6 +46,16 @@ const UI = {
       createPin: "Crea tu código PIN",
       enterPin: "Introduce tu PIN",
       incorrectPin: "PIN incorrecto",
+      labelData: "Copia de seguridad",
+      export: "Exportar JSON",
+      import: "Importar JSON",
+      importSuccess: "¡Datos importados con éxito!",
+      importError: "Error al importar el archivo.",
+      invalidFile: "El archivo no pertenece a esta aplicación.",
+      importTitle: "Importar datos",
+      importBody: "Elige cómo quieres procesar el archivo:",
+      importMerge: "Fusionar con actuales",
+      importOverwrite: "Sobrescribir todo",
     },
     en: {
       appTitle: "Home",
@@ -93,6 +103,16 @@ const UI = {
       createPin: "Create your PIN",
       enterPin: "Enter your PIN",
       incorrectPin: "Incorrect PIN",
+      labelData: "Backup & Restore",
+      export: "Export JSON",
+      import: "Import JSON",
+      importSuccess: "Data imported successfully!",
+      importError: "Error importing file.",
+      invalidFile: "The file does not belong to this application.",
+      importTitle: "Import Data",
+      importBody: "Choose how to process the file:",
+      importMerge: "Merge with current",
+      importOverwrite: "Overwrite all",
     }
   },
 
@@ -243,6 +263,67 @@ const UI = {
     document.getElementById("reset-app").onclick = () => {
       confirmAccept.onclick = () => DB.clearAll();
       confirmDialog.showModal();
+    };
+
+    // Export / Import Handlers
+    document.getElementById("btn-export").onclick = async () => {
+      const data = await DB.exportAll();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = Utils.getBackupFileName();
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    const fileInput = document.getElementById("import-file-input");
+    document.getElementById("btn-import").onclick = () => fileInput.click();
+
+    const importOptionsDialog = document.getElementById("import-options-dialog");
+
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          const t = this.translations[DB.getLang()];
+
+          // 1. Validar firma de la aplicación antes de mostrar opciones
+          if (data.appId !== "ActionCounter") {
+            this._showToast(t.invalidFile);
+            fileInput.value = ""; // Limpiar input
+            return;
+          }
+          
+          document.getElementById("import-merge-btn").onclick = async () => {
+            try {
+              await DB.importAll(data, true);
+              location.reload();
+            } catch (err) {
+              this._showToast(t.importError);
+            }
+          };
+          
+          document.getElementById("import-overwrite-btn").onclick = async () => {
+            try {
+              await DB.importAll(data, false);
+              location.reload();
+            } catch (err) {
+              this._showToast(t.importError);
+            }
+          };
+
+          document.getElementById("import-cancel-btn").onclick = () => importOptionsDialog.close();
+          
+          importOptionsDialog.showModal();
+        } catch (err) {
+          this._showToast(this.translations[DB.getLang()].importError);
+        }
+      };
+      reader.readAsText(file);
     };
 
     confirmCancel.onclick = () => confirmDialog.close();
@@ -469,6 +550,15 @@ const UI = {
     document.getElementById("label-manual-time").textContent = t.labelTime;
     document.getElementById("manual-cancel").textContent = t.cancel;
     document.getElementById("manual-save").textContent = t.accept;
+
+    document.getElementById("label-data").textContent = t.labelData;
+    document.getElementById("text-export").textContent = t.export;
+    document.getElementById("text-import").textContent = t.import;
+
+    document.getElementById("import-title").textContent = t.importTitle;
+    document.getElementById("import-body").textContent = t.importBody;
+    document.getElementById("import-merge-btn").textContent = t.importMerge;
+    document.getElementById("import-overwrite-btn").textContent = t.importOverwrite;
   },
 
   applyDarkMode() {
