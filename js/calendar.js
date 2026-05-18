@@ -395,6 +395,9 @@ const Calendar = {
     const dateStr = Utils.formatDate(currentHistoryDateMidnight); 
     const dayEvents = events.filter(e => e.date === dateStr);
 
+    // Ordenar los eventos del día por su marca de tiempo completa (full ISO string)
+    dayEvents.sort((a, b) => new Date(a.full).getTime() - new Date(b.full).getTime());
+
     const todayBtn = document.getElementById("history-today-btn");
     if (todayBtn) todayBtn.style.display = isToday ? "none" : "block";
 
