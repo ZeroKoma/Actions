@@ -45,6 +45,7 @@ const UI = {
       updateAvailable: "Nueva versión disponible. Toca para actualizar.",
       createPin: "Crea tu código PIN",
       enterPin: "Introduce tu PIN",
+      pinHint: "Este código será tu clave para entrar en la app a partir de ahora.",
       incorrectPin: "PIN incorrecto",
       labelData: "Copia de seguridad",
       export: "Exportar JSON",
@@ -102,6 +103,7 @@ const UI = {
       updateAvailable: "New version available. Tap to update.",
       createPin: "Create your PIN",
       enterPin: "Enter your PIN",
+      pinHint: "This code will be your key to enter the app from now on.",
       incorrectPin: "Incorrect PIN",
       labelData: "Backup & Restore",
       export: "Export JSON",
@@ -820,11 +822,13 @@ const UI = {
       const overlay = document.getElementById("passcode-screen");
       const dots = overlay.querySelectorAll(".dot");
       const msgEl = document.getElementById("passcode-msg");
+      const hintEl = document.getElementById("passcode-hint");
       const t = this.translations[DB.getLang()];
       
       let input = "";
       overlay.classList.remove("hidden");
       msgEl.textContent = isLocked ? t.enterPin : t.createPin;
+      hintEl.textContent = isLocked ? "" : t.pinHint;
 
       const updateUI = () => {
         dots.forEach((dot, i) => dot.classList.toggle("filled", i < input.length));

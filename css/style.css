@@ -1108,6 +1108,15 @@ input:checked + .slider:before {
   color: var(--text);
 }
 
+.passcode-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: -1.5rem;
+  margin-bottom: 2rem;
+  padding: 0 1.5rem;
+  line-height: 1.4;
+}
+
 .passcode-dots {
   display: flex;
   justify-content: center;
