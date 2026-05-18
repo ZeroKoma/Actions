@@ -17,16 +17,22 @@ const App = {
   async init() {
     // 1. Preparación de datos y compatibilidad
     await DB.migrateFromLocalStorage();
+    
+    // 2. Bloqueo por PIN
+    UI.updateLanguageStrings(); // Asegurar idioma para la pantalla de PIN
+    const pinExists = !!DB.getPasscode();
+    await UI.showPasscodeLock(pinExists);
+
     await this._ensureInitialData();
 
-    // 2. Inicialización de la interfaz
+    // 3. Inicialización de la interfaz
     await UI.renderMain();
     UI.setupEventListeners();
     
-    // 3. Carga de módulos secundarios
+    // 4. Carga de módulos secundarios
     await Calendar.init();
     
-    // 4. Mostrar vista inicial
+    // 5. Mostrar vista inicial
     UI.showView('main');
   },
 

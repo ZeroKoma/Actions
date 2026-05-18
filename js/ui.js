@@ -42,7 +42,10 @@ const UI = {
       selectWeekends: "S-D",
       editEntry: "Editar registro",
       entrySaved: "¡Registro guardado!",
-      updateAvailable: "Nueva versión disponible. Toca para actualizar."
+      updateAvailable: "Nueva versión disponible. Toca para actualizar.",
+      createPin: "Crea tu código PIN",
+      enterPin: "Introduce tu PIN",
+      incorrectPin: "PIN incorrecto",
     },
     en: {
       appTitle: "Home",
@@ -86,7 +89,10 @@ const UI = {
       selectWeekends: "Wknd",
       editEntry: "Edit entry",
       entrySaved: "Entry saved!",
-      updateAvailable: "New version available. Tap to update."
+      updateAvailable: "New version available. Tap to update.",
+      createPin: "Create your PIN",
+      enterPin: "Enter your PIN",
+      incorrectPin: "Incorrect PIN",
     }
   },
 
@@ -718,4 +724,66 @@ const UI = {
     // Clean up indicator after animation
     setTimeout(() => indicator.remove(), 800);
   },
+
+  showPasscodeLock(isLocked) {
+    return new Promise((resolve) => {
+      const overlay = document.getElementById("passcode-screen");
+      const dots = overlay.querySelectorAll(".dot");
+      const msgEl = document.getElementById("passcode-msg");
+      const t = this.translations[DB.getLang()];
+      
+      let input = "";
+      overlay.classList.remove("hidden");
+      msgEl.textContent = isLocked ? t.enterPin : t.createPin;
+
+      const updateUI = () => {
+        dots.forEach((dot, i) => dot.classList.toggle("filled", i < input.length));
+      };
+
+      const keypad = overlay.querySelector(".passcode-keypad");
+      keypad.onclick = async (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+
+        if (btn.classList.contains("key")) {
+          if (input.length < 4) {
+            input += btn.textContent;
+            updateUI();
+            if (input.length === 4) {
+              setTimeout(async () => {
+                const saved = DB.getPasscode();
+                const hashedInput = await Utils.hashText(input);
+
+                if (!saved) {
+                  DB.setPasscode(hashedInput);
+                  overlay.classList.add("hidden");
+                  resolve();
+                } else if (hashedInput === saved || input === saved) {
+                  // Si coincide el hash (o el texto plano para migración)
+                  if (input === saved) {
+                    // Migrar automáticamente de texto plano a hash
+                    DB.setPasscode(hashedInput);
+                  }
+                  overlay.classList.add("hidden");
+                  resolve();
+                } else {
+                  input = "";
+                  updateUI();
+                  msgEl.textContent = t.incorrectPin;
+                  msgEl.classList.add("error-shake");
+                  setTimeout(() => {
+                    msgEl.classList.remove("error-shake");
+                    msgEl.textContent = t.enterPin;
+                  }, 600);
+                }
+              }, 250);
+            }
+          }
+        } else if (btn.classList.contains("key-backspace")) {
+          input = input.slice(0, -1);
+          updateUI();
+        }
+      };
+    });
+  }
 };

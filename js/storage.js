@@ -129,12 +129,17 @@ const DB = {
   setLang: (lang) => localStorage.setItem("app_lang", lang),
   getDarkMode: () => localStorage.getItem("app_dark_mode") === "true",
   setDarkMode: (isDark) => localStorage.setItem("app_dark_mode", isDark),
+  getPasscode: () => localStorage.getItem("app_passcode"),
+  setPasscode: (pin) => localStorage.setItem("app_passcode", pin),
 
   clearAll() {
     return this._withTransaction(["actions", "events"], "readwrite", (tx) => {
       tx.objectStore("actions").clear();
       tx.objectStore("events").clear();
-    }).then(() => location.reload());
+    }).then(() => {
+      localStorage.removeItem("app_passcode");
+      location.reload();
+    });
   },
 
   async migrateFromLocalStorage() {

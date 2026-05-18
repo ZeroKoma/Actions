@@ -15,6 +15,30 @@
   </head>
   <body>
     <div id="app">
+      <!-- Passcode Screen -->
+      <div id="passcode-screen" class="passcode-overlay hidden">
+        <div class="passcode-container">
+          <div class="passcode-header">
+            <h2 id="passcode-msg">PIN</h2>
+          </div>
+          <div class="passcode-dots">
+            <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          </div>
+          <div class="passcode-keypad">
+            <button class="key">1</button><button class="key">2</button><button class="key">3</button>
+            <button class="key">4</button><button class="key">5</button><button class="key">6</button>
+            <button class="key">7</button><button class="key">8</button><button class="key">9</button>
+            <div class="key-empty"></div>
+            <button class="key">0</button>
+            <button class="key-backspace">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <header class="app-header">
         <h1 id="app-title">Principal</h1>
         <button id="btn-manual-entry" class="btn-icon">
